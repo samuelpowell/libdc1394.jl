@@ -16,6 +16,19 @@ provides(Sources,
 
 prefix = joinpath(BinDeps.depsdir(libdc1394), "usr")
 srcdir = joinpath(BinDeps.depsdir(libdc1394), "src", "libdc1394-$(version)")
+@osx_only begin
+    if Pkg.installed("Homebrew") === nothing
+        error("Homebrew package not installed, please run Pkg.add(\"Homebrew\")"
+)
+    end
+    using Homebrew
+    provides( Homebrew.HB, "libdc1394", libdc1394, os = :Darwin )
+end
+provides(AptGet,
+        @compat Dict("libdc1394-22" => libdc1394))
+provides(Yum,
+        @compat Dict("libdc1394" => libdc1394))
+
 
 provides(SimpleBuild,
 	(@build_steps begin
