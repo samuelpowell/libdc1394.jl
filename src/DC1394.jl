@@ -1,5 +1,5 @@
 module DC1394
-
-# package code goes here
-
-end # module
+using Compat
+include("../deps/deps.jl")
+include("libdc1394.jl")
+end
