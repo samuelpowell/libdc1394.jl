@@ -1,16 +1,19 @@
 typealias dc1394_t Void
 function __init__()
     global const dc1394=pointer_to_array(ccall((:dc1394_new,libdc1394),Ptr{dc1394_t},()),1)
-    finalizer(dc1394,dc->ccall((:dc1394_free,libdc1394),Void,(Ptr{dc1394_t},),dc1394))
+    finalizer(dc1394,dc->begin
+              println("finalize dc1394_t")
+              ccall((:dc1394_free,libdc1394),Void,(Ptr{dc1394_t},),dc1394)
+              end
+              )
 end
 
 #export VideoMode,ColorCoding,ColorFilter,ByteOrder,Error,Log,IidcVersion,PowerClass,PhyDelay,TriggerMode,Feature,TriggerSource,TriggerPolarity,FeatureMode,Speed,Framerate,OperationMode,CapturePolicy,BayerMethod,StereoMethod,Switch,CameraId,FeatureInfo,VideoFrame,Format7Mode,CameraInfo,Dc1394,
 
-export Camera
+export Camera,CameraInfo
 export Feature,VideoMode,Framerate,OperationMode
-export get_camera_ids
-export get_info,
-set_broadcast,is_broadcast,
+export get_camera_list
+export set_broadcast,is_broadcast,
 reset_bus,read_cycle_timer,get_node,
 get_features,get_feature,
 #get and set Feature generic way
@@ -172,97 +175,20 @@ is_color,
 is_scalable,
 is_still_image,
 is_same,
-feature_get_string,
-error_get_string,
+string,
 checksum_crc16
 
 
 using Compat
-#=
-const ROM_BUS_INFO_BLOCK = 0x0400
-const ROM_ROOT_DIRECTORY = 0x0414
-const CSR_CONFIG_ROM_END = 0x0800
-const REG_CAMERA_FEATURE_ABS_HI_BASE = 0x0700
-const REG_CAMERA_FEATURE_ABS_LO_BASE = 0x0780
-const REG_CAMERA_ABS_MIN = 0x0000
-const REG_CAMERA_ABS_MAX = 0x0004
-const REG_CAMERA_ABS_VALUE = 0x0008
-const REG_CAMERA_INITIALIZE = 0x0000
-const REG_CAMERA_V_FORMAT_INQ = 0x0100
-const REG_CAMERA_V_MODE_INQ_BASE = 0x0180
-const REG_CAMERA_V_RATE_INQ_BASE = 0x0200
-const REG_CAMERA_V_REV_INQ_BASE = 0x02c0
-const REG_CAMERA_V_CSR_INQ_BASE = 0x02e0
-const REG_CAMERA_BASIC_FUNC_INQ = 0x0400
-const REG_CAMERA_FEATURE_HI_INQ = 0x0404
-const REG_CAMERA_FEATURE_LO_INQ = 0x0408
-const REG_CAMERA_OPT_FUNC_INQ = 0x040c
-const REG_CAMERA_ADV_FEATURE_INQ = 0x0480
-const REG_CAMERA_PIO_CONTROL_CSR_INQ = 0x0484
-const REG_CAMERA_SIO_CONTROL_CSR_INQ = 0x0488
-const REG_CAMERA_STROBE_CONTROL_CSR_INQ = 0x048c
-const REG_CAMERA_FEATURE_HI_BASE_INQ = 0x0500
-const REG_CAMERA_FEATURE_LO_BASE_INQ = 0x0580
-const REG_CAMERA_FRAME_RATE = 0x0600
-const REG_CAMERA_VIDEO_MODE = 0x0604
-const REG_CAMERA_VIDEO_FORMAT = 0x0608
-const REG_CAMERA_ISO_DATA = 0x060c
-const REG_CAMERA_POWER = 0x0610
-const REG_CAMERA_ISO_EN = 0x0614
-const REG_CAMERA_MEMORY_SAVE = 0x0618
-const REG_CAMERA_ONE_SHOT = 0x061c
-const REG_CAMERA_MEM_SAVE_CH = 0x0620
-const REG_CAMERA_CUR_MEM_CH = 0x0624
-const REG_CAMERA_SOFT_TRIGGER = 0x062c
-const REG_CAMERA_DATA_DEPTH = 0x0630
-const REG_CAMERA_FEATURE_ERR_HI_INQ = 0x0640
-const REG_CAMERA_FEATURE_ERR_LO_INQ = 0x0644
-const REG_CAMERA_FEATURE_HI_BASE = 0x0800
-const REG_CAMERA_FEATURE_LO_BASE = 0x0880
-const REG_CAMERA_BRIGHTNESS = 0x0800
-const REG_CAMERA_EXPOSURE = 0x0804
-const REG_CAMERA_SHARPNESS = 0x0808
-const REG_CAMERA_WHITE_BALANCE = 0x080c
-const REG_CAMERA_HUE = 0x0810
-const REG_CAMERA_SATURATION = 0x0814
-const REG_CAMERA_GAMMA = 0x0818
-const REG_CAMERA_SHUTTER = 0x081c
-const REG_CAMERA_GAIN = 0x0820
-const REG_CAMERA_IRIS = 0x0824
-const REG_CAMERA_FOCUS = 0x0828
-const REG_CAMERA_TEMPERATURE = 0x082c
-const REG_CAMERA_TRIGGER_MODE = 0x0830
-const REG_CAMERA_TRIGGER_DELAY = 0x0834
-const REG_CAMERA_WHITE_SHADING = 0x0838
-const REG_CAMERA_FRAME_RATE_FEATURE = 0x083c
-const REG_CAMERA_ZOOM = 0x0880
-const REG_CAMERA_PAN = 0x0884
-const REG_CAMERA_TILT = 0x0888
-const REG_CAMERA_OPTICAL_FILTER = 0x088c
-const REG_CAMERA_CAPTURE_SIZE = 0x08c0
-const REG_CAMERA_CAPTURE_QUALITY = 0x08c4
-const REG_CAMERA_FORMAT7_MAX_IMAGE_SIZE_INQ = 0x0000
-const REG_CAMERA_FORMAT7_UNIT_SIZE_INQ = 0x0004
-const REG_CAMERA_FORMAT7_IMAGE_POSITION = 0x0008
-const REG_CAMERA_FORMAT7_IMAGE_SIZE = 0x000c
-const REG_CAMERA_FORMAT7_COLOR_CODING_ID = 0x0010
-const REG_CAMERA_FORMAT7_COLOR_CODING_INQ = 0x0014
-const REG_CAMERA_FORMAT7_PIXEL_NUMBER_INQ = 0x0034
-const REG_CAMERA_FORMAT7_TOTAL_BYTES_HI_INQ = 0x0038
-const REG_CAMERA_FORMAT7_TOTAL_BYTES_LO_INQ = 0x003c
-const REG_CAMERA_FORMAT7_PACKET_PARA_INQ = 0x0040
-const REG_CAMERA_FORMAT7_BYTE_PER_PACKET = 0x0044
-const REG_CAMERA_FORMAT7_PACKET_PER_FRAME_INQ = 0x0048
-const REG_CAMERA_FORMAT7_UNIT_POSITION_INQ = 0x004c
-const REG_CAMERA_FORMAT7_FRAME_INTERVAL_INQ = 0x0050
-const REG_CAMERA_FORMAT7_DATA_DEPTH_INQ = 0x0054
-const REG_CAMERA_FORMAT7_COLOR_FILTER_ID = 0x0058
-const REG_CAMERA_FORMAT7_VALUE_SETTING = 0x007c
-const REG_CAMERA_PIO_IN = 0x0000
-const REG_CAMERA_PIO_OUT = 0x0004
-=#
 
-# begin enum dc1394video_mode_t
+
+convert(::Type{AbstractString},cs::Cstring)=bytestring(cs)
+show(io::IO,cs::Cstring)=println(io,AbstractString(cs))
+
+"""
+enum dc1394video_mode_t
+Enumeration of video modes.
+"""
 @enum(VideoMode,
       VIDEO_MODE_160x120_YUV444 = (UInt32)(64),
       VIDEO_MODE_320x240_YUV422 = (UInt32)(65),
@@ -296,7 +222,6 @@ VIDEO_MODE_FORMAT7_4 = (UInt32)(92),
 VIDEO_MODE_FORMAT7_5 = (UInt32)(93),
 VIDEO_MODE_FORMAT7_6 = (UInt32)(94),
 VIDEO_MODE_FORMAT7_7 = (UInt32)(95))
-# end enum dc1394video_mode_t
 
 const VIDEO_MODE_MIN = VIDEO_MODE_160x120_YUV444
 const VIDEO_MODE_MAX = VIDEO_MODE_FORMAT7_7
@@ -305,7 +230,10 @@ const VIDEO_MODE_FORMAT7_MIN = VIDEO_MODE_FORMAT7_0
 const VIDEO_MODE_FORMAT7_MAX = VIDEO_MODE_FORMAT7_7
 const VIDEO_MODE_FORMAT7_NUM = (Int(VIDEO_MODE_FORMAT7_MAX) - Int(VIDEO_MODE_FORMAT7_MIN)) + 1
 
-# begin enum dc1394color_coding_t
+"""
+enum dc1394color_coding_t
+ Enumeration of colour codings. For details on the data format please read the IIDC specifications.
+"""
 @enum(ColorCoding,
       COLOR_CODING_MONO8 = (UInt32)(352),
       COLOR_CODING_YUV411 = (UInt32)(353),
@@ -318,35 +246,38 @@ const VIDEO_MODE_FORMAT7_NUM = (Int(VIDEO_MODE_FORMAT7_MAX) - Int(VIDEO_MODE_FOR
 COLOR_CODING_RGB16S = (UInt32)(360),
 COLOR_CODING_RAW8 = (UInt32)(361),
 COLOR_CODING_RAW16 = (UInt32)(362))
-# end enum ColorCoding
 
 const COLOR_CODING_MIN = COLOR_CODING_MONO8
 const COLOR_CODING_MAX = COLOR_CODING_RAW16
 const COLOR_CODING_NUM = (Int(COLOR_CODING_MAX) - Int(COLOR_CODING_MIN)) + 1
 
-# begin enum dc1394color_filter_t
+"""
+enum dc1394color_filter_t
+"""
 @enum(ColorFilter,
       COLOR_FILTER_RGGB = (UInt32)(512),
       COLOR_FILTER_GBRG = (UInt32)(513),
       COLOR_FILTER_GRBG = (UInt32)(514),
       COLOR_FILTER_BGGR = (UInt32)(515))
-# end enum ColorFilter
 
 const COLOR_FILTER_MIN = COLOR_FILTER_RGGB
 const COLOR_FILTER_MAX = COLOR_FILTER_BGGR
 const COLOR_FILTER_NUM = (Int(COLOR_FILTER_MAX) - Int(COLOR_FILTER_MIN)) + 1
 
-# begin enum dc1394byte_order_t
+"""
+enum dc1394byte_order_t
+"""
 @enum(ByteOrder,
       BYTE_ORDER_UYVY = (UInt32)(800),
       BYTE_ORDER_YUYV = (UInt32)(801))
-# end enum ByteOrder
 
 const BYTE_ORDER_MIN = BYTE_ORDER_UYVY
 const BYTE_ORDER_MAX = BYTE_ORDER_YUYV
 const BYTE_ORDER_NUM = (Int(BYTE_ORDER_MAX) - Int(BYTE_ORDER_MIN)) + 1
 
-# begin enum dc1394error_t
+"""
+enum dc1394error_t
+"""
 @enum(Error,
       SUCCESS = (Int32)(0),
       FAILURE = (Int32)(-1),
@@ -388,24 +319,15 @@ INVALID_STEREO_METHOD = (Int32)(-36),
 BASLER_NO_MORE_SFF_CHUNKS = (Int32)(-37),
 BASLER_CORRUPTED_SFF_CHUNK = (Int32)(-38),
 BASLER_UNKNOWN_SFF_CHUNK = (Int32)(-39))
-# end enum Error
+
 
 const ERROR_MIN = BASLER_UNKNOWN_SFF_CHUNK
 const ERROR_MAX = SUCCESS
 const ERROR_NUM = (Int(ERROR_MAX) - Int(ERROR_MIN)) + 1
 
-# begin enum dc1394log_t
-@enum(Log,
-      LOG_ERROR = (UInt32)(768),
-      LOG_WARNING = (UInt32)(769),
-      LOG_DEBUG = (UInt32)(770))
-# end enum Log
-
-const LOG_MIN = LOG_ERROR
-const LOG_MAX = LOG_DEBUG
-const LOG_NUM = (Int(LOG_MAX) - Int(LOG_MIN)) + 1
-
-# begin enum dc1394iidc_version_t
+"""
+enum dc1394iidc_version_t
+"""
 @enum(IidcVersion,
       IIDC_VERSION_1_04 = (UInt32)(544),
       IIDC_VERSION_1_20 = (UInt32)(545),
@@ -420,13 +342,14 @@ IIDC_VERSION_1_36 = (UInt32)(553),
 IIDC_VERSION_1_37 = (UInt32)(554),
 IIDC_VERSION_1_38 = (UInt32)(555),
 IIDC_VERSION_1_39 = (UInt32)(556))
-# end enum IidcVersion
 
 const IIDC_VERSION_MIN = IIDC_VERSION_1_04
 const IIDC_VERSION_MAX = IIDC_VERSION_1_39
 const IIDC_VERSION_NUM = (Int(IIDC_VERSION_MAX) - Int(IIDC_VERSION_MIN)) + 1
 
-# begin enum dc1394power_class_t
+"""
+enum dc1394power_class_t
+"""
 @enum(PowerClass,
       POWER_CLASS_NONE = (UInt32)(608),
       POWER_CLASS_PROV_MIN_15W = (UInt32)(609),
@@ -436,25 +359,27 @@ const IIDC_VERSION_NUM = (Int(IIDC_VERSION_MAX) - Int(IIDC_VERSION_MIN)) + 1
       POWER_CLASS_USES_MAX_3W = (UInt32)(613),
       POWER_CLASS_USES_MAX_6W = (UInt32)(614),
       POWER_CLASS_USES_MAX_10W = (UInt32)(615))
-# end enum PowerClass
 
 const POWER_CLASS_MIN = POWER_CLASS_NONE
 const POWER_CLASS_MAX = POWER_CLASS_USES_MAX_10W
 const POWER_CLASS_NUM = (Int(POWER_CLASS_MAX) - Int(POWER_CLASS_MIN)) + 1
 
-# begin enum dc1394phy_delay_t
+"""
+enum dc1394phy_delay_t
+"""
 @enum(PhyDelay,
       PHY_DELAY_MAX_144_NS = (UInt32)(640),
       PHY_DELAY_UNKNOWN_0 = (UInt32)(641),
       PHY_DELAY_UNKNOWN_1 = (UInt32)(642),
       PHY_DELAY_UNKNOWN_2 = (UInt32)(643))
-# end enum PhyDelay
 
 const PHY_DELAY_MIN = PHY_DELAY_MAX_144_NS
 const PHY_DELAY_MAX = PHY_DELAY_UNKNOWN_0
 const PHY_DELAY_NUM = (Int(PHY_DELAY_MAX) - Int(PHY_DELAY_MIN)) + 1
 
-# begin enum dc1394trigger_mode_t
+"""
+enum dc1394trigger_mode_t
+"""
 @enum(TriggerMode,
       TRIGGER_MODE_0 = (UInt32)(384),
       TRIGGER_MODE_1 = (UInt32)(385),
@@ -464,43 +389,15 @@ const PHY_DELAY_NUM = (Int(PHY_DELAY_MAX) - Int(PHY_DELAY_MIN)) + 1
       TRIGGER_MODE_5 = (UInt32)(389),
       TRIGGER_MODE_14 = (UInt32)(390),
       TRIGGER_MODE_15 = (UInt32)(391))
-# end enum TriggerMode
 
 const TRIGGER_MODE_MIN = TRIGGER_MODE_0
 const TRIGGER_MODE_MAX = TRIGGER_MODE_15
 const TRIGGER_MODE_NUM = (Int(TRIGGER_MODE_MAX) - Int(TRIGGER_MODE_MIN)) + 1
 
-# begin enum dc1394feature_t
-@enum(Feature,
-      FEATURE_BRIGHTNESS = (UInt32)(416),
-      FEATURE_EXPOSURE = (UInt32)(417),
-      FEATURE_SHARPNESS = (UInt32)(418),
-      FEATURE_WHITE_BALANCE = (UInt32)(419),
-      FEATURE_HUE = (UInt32)(420),
-      FEATURE_SATURATION = (UInt32)(421),
-      FEATURE_GAMMA = (UInt32)(422),
-      FEATURE_SHUTTER = (UInt32)(423),
-      FEATURE_GAIN = (UInt32)(424),
-      FEATURE_IRIS = (UInt32)(425),
-FEATURE_FOCUS = (UInt32)(426),
-FEATURE_TEMPERATURE = (UInt32)(427),
-FEATURE_TRIGGER = (UInt32)(428),
-FEATURE_TRIGGER_DELAY = (UInt32)(429),
-FEATURE_WHITE_SHADING = (UInt32)(430),
-FEATURE_FRAME_RATE = (UInt32)(431),
-FEATURE_ZOOM = (UInt32)(432),
-FEATURE_PAN = (UInt32)(433),
-FEATURE_TILT = (UInt32)(434),
-FEATURE_OPTICAL_FILTER = (UInt32)(435),
-FEATURE_CAPTURE_SIZE = (UInt32)(436),
-FEATURE_CAPTURE_QUALITY = (UInt32)(437))
-# end enum Feature
 
-const FEATURE_MIN = FEATURE_BRIGHTNESS
-const FEATURE_MAX = FEATURE_CAPTURE_QUALITY
-const FEATURE_NUM = (Int(FEATURE_MAX) - Int(FEATURE_MIN)) + 1
-
-# begin enum dc1394trigger_source_t
+"""
+enum dc1394trigger_source_t
+"""
 @enum(TriggerSource,
       TRIGGER_SOURCE_0 = (UInt32)(576),
       TRIGGER_SOURCE_1 = (UInt32)(577),
@@ -647,11 +544,14 @@ immutable dc1394color_codings_t
     num::UInt32
     codings::NTuple{11,ColorCoding}
 end
+show(io::IO,cs::dc1394color_codings_t)=0<fs.num<11? show(io,cs.codings[1:cs.num]):()
 
 immutable dc1394video_modes_t
     num::UInt32
     modes::NTuple{32,VideoMode}
+    dc1394video_modes_t()=new(UInt32(0),ntuple(x->VIDEO_MODE_MIN,32))
 end
+show(io::IO,vms::dc1394video_modes_t)=0<vms.num<32? show(io,vms.modes[1:vms.num]) :()
 
 # begin enum Bool
 @enum(Bool,
@@ -665,149 +565,35 @@ end
       ON = (UInt32)(1))
 # end enum Switch
 
-immutable CameraInfo
-    guid::UInt64
-    unit::Cint
-    unit_spec_ID::UInt32
-    unit_sw_version::UInt32
-    unit_sub_sw_version::UInt32
-    command_registers_base::UInt32
-    unit_directory::UInt32
-    unit_dependent_directory::UInt32
-    advanced_features_csr::UInt64
-    PIO_control_csr::UInt64
-    SIO_control_csr::UInt64
-    strobe_control_csr::UInt64
-    format7_csr::NTuple{8,UInt64}
-    iidc_version::IidcVersion
-    vendor::Ptr{UInt8}
-    model::Ptr{UInt8}
-    vendor_id::UInt32
-    model_id::UInt32
-    bmode_capable::Bool
-    one_shot_capable::Bool
-    multi_shot_capable::Bool
-    can_switch_on_off::Bool
-    has_vmode_error_status::Bool
-    has_feature_error_status::Bool
-    max_mem_channel::Cint
-    flags::UInt32
-end
-
-immutable CameraId
-    unit::UInt16
-    guid::UInt64
-end
-
-immutable dc1394camera_list_t
-    num::UInt32
-    ids::Ptr{CameraId}
-end
 
 immutable dc1394feature_modes_t
     num::UInt32
     modes::NTuple{3,FeatureMode}
+    dc1394feature_modes_t()=new(0,ntuple(i->FEATURE_MODE_MIN,3))
 end
+show(io::IO,fm::dc1394feature_modes_t)=0<fm.num<3? show(io,fm.modes[1:fm.num]):()
 
 immutable dc1394trigger_modes_t
     num::UInt32
     modes::NTuple{8,TriggerMode}
+    dc1394trigger_modes_t()=new(0,ntuple(i->TRIGGER_MODE_MIN,8))
 end
+show(io::IO,fm::dc1394trigger_modes_t)=0<fm.num<8? show(io,fm.modes[1:fm.num]):()
 
 immutable dc1394trigger_sources_t
     num::UInt32
     sources::NTuple{5,TriggerSource}
+    dc1394trigger_sources_t()=new(0,ntuple(i->TRIGGER_SOURCE_MIN,5))
 end
-
-immutable FeatureInfo
-    id::Feature
-    available::Bool
-    absolute_capable::Bool
-    readout_capable::Bool
-    on_off_capable::Bool
-    polarity_capable::Bool
-    is_on::Switch
-    current_mode::FeatureMode
-    modes::dc1394feature_modes_t
-    trigger_modes::dc1394trigger_modes_t
-    trigger_mode::TriggerMode
-    trigger_polarity::TriggerPolarity
-    trigger_sources::dc1394trigger_sources_t
-    trigger_source::TriggerSource
-    min::UInt32
-    max::UInt32
-    value::UInt32
-    BU_value::UInt32
-    RV_value::UInt32
-    B_value::UInt32
-    R_value::UInt32
-    G_value::UInt32
-    target_value::UInt32
-    abs_control::Switch
-    abs_value::Cfloat
-    abs_max::Cfloat
-    abs_min::Cfloat
-end
-
-immutable dc1394featureset_t
-    feature::NTuple{22,FeatureInfo}
-end
+show(io::IO,fm::dc1394trigger_sources_t)=0<fm.num<5? show(io,fm.sources[1:fm.num]):()
 
 immutable dc1394framerates_t
     num::UInt32
     framerates::NTuple{8,Framerate}
+    dc1394framerates_t()=new(0,ntuple(i->FRAMERATE_MIN,8))
 end
-
-immutable dc1394video_frame_t
-    image::Ptr{Cuchar}
-    size::NTuple{2,UInt32}
-    position::Tuple{UInt32,UInt32}
-    color_coding::ColorCoding
-    color_filter::ColorFilter
-    yuv_byte_order::UInt32
-    data_depth::UInt32
-    stride::UInt32
-    video_mode::VideoMode
-    total_bytes::UInt64
-    image_bytes::UInt32
-    padding_bytes::UInt32
-    packet_size::UInt32
-    packets_per_frame::UInt32
-    timestamp::UInt64
-    frames_behind::UInt32
-    camera::Ptr{CameraInfo}
-    id::UInt32
-    allocated_image_bytes::UInt64
-    little_endian::Bool
-    data_in_padding::Bool
-    dc1394video_frame_t()=new(0,
-                              (0,0),
-                              (0,0),
-                              COLOR_CODING_MIN,
-                              COLOR_FILTER_MIN,
-                              0,
-                              0,
-                              0,
-                              VIDEO_MODE_MIN,
-                              0,
-                              0,
-                              0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    true,
-    true)
-end
-
-immutable VideoFrame
-    handle::Ptr{dc1394video_frame_t}
-end
-VideoFrame()=VideoFrame(C_NULL)
-
+show(io::IO,fm::dc1394framerates_t)=0<fm.num<8? show(io,fm.framerates[1:fm.num]):()
+                                                                                          
 typealias dc1394capture_callback_t Ptr{Void}
 
 immutable Format7Mode
@@ -836,16 +622,20 @@ immutable dc1394format7modeset_t
     mode::NTuple{8,Format7Mode}
 end
 
-# Automatically generated using Clang.jl wrap_c, version 0.0.0
-function register_handler(_type::Log,log_handler::Ptr{Void},user::Ptr{Void})
-    ccall((:dc1394_log_register_handler,libdc1394),Error,(Log,Ptr{Void},Ptr{Void}),_type,log_handler,user)
+immutable CameraId
+    unit::UInt16
+    guid::UInt64
 end
 
-function set_default_handler(_type::Log)
-    ccall((:dc1394_log_set_default_handler,libdc1394),Error,(Log,),_type)
+immutable dc1394camera_list_t
+    num::UInt32
+    ids::Ptr{CameraId}
 end
 
-function get_camera_ids()
+"""
+Returns the list of cameras available on the computer
+"""
+function get_camera_list()
     list=Array{Ptr{dc1394camera_list_t},1}(1)
     err=ccall((:dc1394_camera_enumerate,libdc1394),Error,(Ptr{dc1394_t},Ptr{Ptr{dc1394camera_list_t}}),dc1394,list)
     l=unsafe_load(list[1])
@@ -854,11 +644,51 @@ function get_camera_ids()
     ids
 end
 
+
+"""
+camera handle type
+"""
+immutable CameraInfo
+    guid::UInt64
+    unit::Cint
+    unit_spec_ID::UInt32
+    unit_sw_version::UInt32
+    unit_sub_sw_version::UInt32
+    command_registers_base::UInt32
+    unit_directory::UInt32
+    unit_dependent_directory::UInt32
+    advanced_features_csr::UInt64
+    PIO_control_csr::UInt64
+    SIO_control_csr::UInt64
+    strobe_control_csr::UInt64
+    format7_csr::NTuple{8,UInt64}
+    iidc_version::IidcVersion
+    vendor::Cstring
+    model::Cstring
+    vendor_id::UInt32
+    model_id::UInt32
+    bmode_capable::Bool
+    one_shot_capable::Bool
+    multi_shot_capable::Bool
+    can_switch_on_off::Bool
+    has_vmode_error_status::Bool
+    has_feature_error_status::Bool
+    max_mem_channel::Cint
+    flags::UInt32
+end
+function show(io::IO, c::CameraInfo)
+    println(io,"CameraInfo:")
+    for fname in fieldnames(c)
+        print(io,"\t$(fname):\t");show(io,getfield(c,fname));println("");
+    end
+end
 type Camera
     handle::Ptr{CameraInfo}
 end
-function Camera(guid::UInt64)
-    handle=ccall((:dc1394_camera_new,libdc1394),Ptr{CameraInfo},(Ptr{dc1394_t},UInt64),dc1394,guid)
+convert(::Type{CameraInfo}, camera::Camera)=unsafe_load(camera.handle)
+show(io::IO,c::Camera)=show(io,CameraInfo(c))
+function Camera(guid::Integer)
+    handle=ccall((:dc1394_camera_new,libdc1394),Ptr{CameraInfo},(Ptr{dc1394_t},UInt64),dc1394,UInt64(guid))
     camera=Camera(handle)
     finalizer(camera,camera_free)
     camera
@@ -871,16 +701,16 @@ function Camera(id::CameraId)
     camera
 end
 
-function get_info(camera::Camera)
-    unsafe_load(camera.handle)
-end
-
 function camera_free(camera::Camera)
+    println("finalize camera");
     if camera.handle!=C_NULL
         ccall((:dc1394_camera_free,libdc1394),Void,(Ptr{CameraInfo},),camera.handle)
     end
     camera.handle=C_NULL
 end
+
+
+
 
 function set_broadcast(camera::Camera,pwr::Base.Bool)
     ccall((:dc1394_camera_set_broadcast,libdc1394),Error,(Ptr{CameraInfo},Bool),camera.handle,pwr?TRUE:FALSE)
@@ -910,14 +740,116 @@ function get_node(camera::Camera)
     Int(node[1]),Int(generation[1])
 end
 
+
+
+
+"""
+enum dc1394feature_t
+"""
+@enum(Feature,
+      FEATURE_BRIGHTNESS = (UInt32)(416),
+      FEATURE_EXPOSURE = (UInt32)(417),
+      FEATURE_SHARPNESS = (UInt32)(418),
+      FEATURE_WHITE_BALANCE = (UInt32)(419),
+      FEATURE_HUE = (UInt32)(420),
+      FEATURE_SATURATION = (UInt32)(421),
+      FEATURE_GAMMA = (UInt32)(422),
+      FEATURE_SHUTTER = (UInt32)(423),
+      FEATURE_GAIN = (UInt32)(424),
+      FEATURE_IRIS = (UInt32)(425),
+FEATURE_FOCUS = (UInt32)(426),
+FEATURE_TEMPERATURE = (UInt32)(427),
+FEATURE_TRIGGER = (UInt32)(428),
+FEATURE_TRIGGER_DELAY = (UInt32)(429),
+FEATURE_WHITE_SHADING = (UInt32)(430),
+FEATURE_FRAME_RATE = (UInt32)(431),
+FEATURE_ZOOM = (UInt32)(432),
+FEATURE_PAN = (UInt32)(433),
+FEATURE_TILT = (UInt32)(434),
+FEATURE_OPTICAL_FILTER = (UInt32)(435),
+FEATURE_CAPTURE_SIZE = (UInt32)(436),
+FEATURE_CAPTURE_QUALITY = (UInt32)(437))
+
+const FEATURE_MIN = FEATURE_BRIGHTNESS
+const FEATURE_MAX = FEATURE_CAPTURE_QUALITY
+const FEATURE_NUM = (Int(FEATURE_MAX) - Int(FEATURE_MIN)) + 1
+
+immutable FeatureInfo
+    id::Feature
+    available::Bool
+    absolute_capable::Bool
+    readout_capable::Bool
+    on_off_capable::Bool
+    polarity_capable::Bool
+    is_on::Switch
+    current_mode::FeatureMode
+    modes::dc1394feature_modes_t
+    trigger_modes::dc1394trigger_modes_t
+    trigger_mode::TriggerMode
+    trigger_polarity::TriggerPolarity
+    trigger_sources::dc1394trigger_sources_t
+    trigger_source::TriggerSource
+    min::UInt32
+    max::UInt32
+    value::UInt32
+    BU_value::UInt32
+    RV_value::UInt32
+    B_value::UInt32
+    R_value::UInt32
+    G_value::UInt32
+    target_value::UInt32
+    abs_control::Switch
+    abs_value::Cfloat
+    abs_max::Cfloat
+    abs_min::Cfloat
+
+    FeatureInfo(id::Feature)=new(id,
+                             FALSE,#available::Bool
+                             FALSE,#absolute_capable::Bool
+                             FALSE,#readout_capable::Bool
+                             FALSE,#on_off_capable::Bool
+                             FALSE,#polarity_capable::Bool
+                             OFF,#is_on::Switch
+                             FEATURE_MODE_MANUAL,#current_mode::FeatureMode
+    dc1394feature_modes_t(),#modes::dc1394feature_modes_t
+    dc1394trigger_modes_t(),#trigger_modes::dc1394trigger_modes_t
+    TRIGGER_MODE_0,#trigger_mode::TriggerMode
+    TRIGGER_ACTIVE_LOW,#trigger_polarity::TriggerPolarity
+    dc1394trigger_sources_t(),#trigger_sources::dc1394trigger_sources_t
+    TRIGGER_SOURCE_0,#trigger_source::TriggerSource
+    0,#min::UInt32
+    0,#max::UInt32
+    0,#value::UInt32
+    0,#BU_value::UInt32
+    0,#RV_value::UInt32
+    0,#B_value::UInt32
+    0,#R_value::UInt32
+    0,#G_value::UInt32
+    0,#target_value::UInt32
+    OFF,#abs_control::Switch
+    0,#abs_value::Cfloat
+    0,#abs_max::Cfloat
+    0#abs_min::Cfloat
+    )
+end
+function show(io::IO, c::FeatureInfo)
+    for fname in fieldnames(c)
+        print(io,"\t$(fname):\t");show(io,getfield(c,fname));println("");
+    end
+end
+
+immutable dc1394featureset_t
+    feature::NTuple{22,FeatureInfo}
+end
+
 function get_features(camera::Camera)
     features=Array{FeatureInfo,1}(22)
     ccall((:dc1394_feature_get_all,libdc1394),Error,(Ptr{CameraInfo},Ptr{FeatureInfo}),camera.handle,features)
     features
 end
 
-function get_feature(camera::Camera)
-    feature=Array{FeatureInfo,1}(1)
+function get_feature(camera::Camera,id::Feature)
+    feature=[FeatureInfo(id)]
     ccall((:dc1394_feature_get,libdc1394),Error,(Ptr{CameraInfo},Ptr{FeatureInfo}),camera.handle,feature)
     feature[1]
 end
@@ -970,7 +902,6 @@ function set_value(camera::Camera,feature::Feature,value::Int)
     ccall((:dc1394_feature_set_value,libdc1394),Error,(Ptr{CameraInfo},Feature,UInt32),camera.handle,feature,value)
 end
 
-get_whitebalance(vf::VideoFrame)=get_shutter(Camera(get_info(vf).camera))
 get_whitebalance_modes(camera::Camera)=get_modes(camera,FEATURE_WHITE_BALANCE)
 get_whitebalance_mode(camera::Camera)=get_mode(camera,FEATURE_WHITEB_ALANCE)
 set_whitebalance_mode(camera::Camera,mode::FeatureMode)=set_mode(camera,FEATURE_WHITE_BALANCE,mode)
@@ -1012,7 +943,6 @@ get_gamma_modes(camera::Camera)=get_modes(camera,FEATURE_GAMMA)
 get_gamma_mode(camera::Camera)=get_mode(camera,FEATURE_GAMMA)
 set_gamma_mode(camera::Camera,mode::FeatureMode)=set_mode(camera,FEATURE_GAMMA,mode)
 get_shutter(camera::Camera)=get_value(camera,FEATURE_SHUTTER)
-get_shutter(vf::VideoFrame)=get_shutter(Camera(get_info(vf).camera))
 set_shutter(camera::Camera,value::Int)=set_value(camera,FEATURE_SHUTTER,value)
 get_shutter_modes(camera::Camera)=get_modes(camera,FEATURE_SHUTTER)
 get_shutter_mode(camera::Camera)=get_mode(camera,FEATURE_SHUTTER)
@@ -1162,7 +1092,7 @@ function external_trigger_set_polarity(camera::Camera,polarity::TriggerPolarity)
     ccall((:dc1394_external_trigger_set_polarity,libdc1394),Error,(Ptr{CameraInfo},TriggerPolarity),camera.handle,polarity)
 end
 
-function external_trigger_get_polarity(camera::Camera,polarity::Ptr{TriggerPolarity})
+function external_trigger_get_polarity(camera::Camera)
     polarity=Array{TriggerPolarity,1}(1)
     ccall((:dc1394_external_trigger_get_polarity,libdc1394),Error,(Ptr{CameraInfo},Ptr{TriggerPolarity}),camera.handle,polarity)
     polarity[1]
@@ -1371,6 +1301,58 @@ function capture_get_fileno(camera::Camera)
     ccall((:dc1394_capture_get_fileno,libdc1394),Cint,(Ptr{CameraInfo},),camera.handle)
 end
 
+
+
+immutable dc1394video_frame_t
+    image::Ptr{Cuchar}
+    size::NTuple{2,UInt32}
+    position::Tuple{UInt32,UInt32}
+    color_coding::ColorCoding
+    color_filter::ColorFilter
+    yuv_byte_order::UInt32
+    data_depth::UInt32
+    stride::UInt32
+    video_mode::VideoMode
+    total_bytes::UInt64
+    image_bytes::UInt32
+    padding_bytes::UInt32
+    packet_size::UInt32
+    packets_per_frame::UInt32
+    timestamp::UInt64
+    frames_behind::UInt32
+    camera::Ptr{CameraInfo}
+    id::UInt32
+    allocated_image_bytes::UInt64
+    little_endian::Bool
+    data_in_padding::Bool
+    dc1394video_frame_t()=new(0,
+                              (0,0),
+                              (0,0),
+                              COLOR_CODING_MIN,
+                              COLOR_FILTER_MIN,
+                              0,
+                              0,
+                              0,
+                              VIDEO_MODE_MIN,
+                              0,
+                              0,
+                              0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    true,
+    true)
+end
+
+immutable VideoFrame
+    handle::Ptr{dc1394video_frame_t}
+end
+VideoFrame()=VideoFrame(C_NULL)
+
 function capture_dequeue(camera::Camera,policy::CapturePolicy=CAPTURE_POLICY_WAIT)
     frame=Array{Ptr{dc1394video_frame_t},1}(1)
     ccall((:dc1394_capture_dequeue,libdc1394),
@@ -1404,6 +1386,10 @@ function capture_set_callback(callback::Function,camera::Camera)
     const ccallback = cfunction(mycallback,Void,(Ptr{CameraInfo},Ptr{Void}))
     ccall((:dc1394_capture_set_callback,libdc1394),Void,(Ptr{CameraInfo},Ptr{Void},Ptr{Void}),camera.handle,ccallback,C_NULL)
 end
+
+
+get_whitebalance(vf::VideoFrame)=get_shutter(Camera(get_info(vf).camera))
+get_shutter(vf::VideoFrame)=get_shutter(Camera(get_info(vf).camera))
 
 function convert_to_YUV422(src::Ptr{UInt8},dest::Ptr{UInt8},width::Int,height::Int,byte_order::Int,source_coding::ColorCoding,bits::Int)
     ccall((:dc1394_convert_to_YUV422,libdc1394),Error,(Ptr{UInt8},Ptr{UInt8},UInt32,UInt32,UInt32,ColorCoding,UInt32),src,dest,width,height,byte_order,source_coding,bits)
@@ -1613,21 +1599,21 @@ function iso_set_persist(camera::Camera)
     ccall((:dc1394_iso_set_persist,libdc1394),Error,(Ptr{CameraInfo},),camera.handle)
 end
 
-function iso_allocate_channel(camera::Camera,channels_allowed::UInt64)
+function iso_allocate_channel(camera::Camera,channels_allowed::Integer)
     channel=[Cint(0)]
     ccall((:dc1394_iso_allocate_channel,libdc1394),Error,(Ptr{CameraInfo},UInt64,Ptr{Cint}),camera.handle,channels_allowed,channel)
     channel[1]
 end
 
-function iso_release_channel(camera::Camera,channel::Cint)
+function iso_release_channel(camera::Camera,channel::Integer)
     ccall((:dc1394_iso_release_channel,libdc1394),Error,(Ptr{CameraInfo},Cint),camera.handle,channel)
 end
 
-function iso_allocate_bandwidth(camera::Camera,bandwidth_units::Cint)
+function iso_allocate_bandwidth(camera::Camera,bandwidth_units::Integer)
     ccall((:dc1394_iso_allocate_bandwidth,libdc1394),Error,(Ptr{CameraInfo},Cint),camera.handle,bandwidth_units)
 end
 
-function iso_release_bandwidth(camera::Camera,bandwidth_units::Cint)
+function iso_release_bandwidth(camera::Camera,bandwidth_units::Integer)
     ccall((:dc1394_iso_release_bandwidth,libdc1394),Error,(Ptr{CameraInfo},Cint),camera.handle,bandwidth_units)
 end
 
@@ -1635,106 +1621,106 @@ function iso_release_all(camera::Camera)
     ccall((:dc1394_iso_release_all,libdc1394),Error,(Ptr{CameraInfo},),camera.handle)
 end
 
-function get_registers(camera::Camera,offset::UInt64,num_regs::Int)
+function get_registers(camera::Camera,offset::Integer,num_regs::Integer)
     value=Array{UInt32,1}(num_regs)
     ccall((:dc1394_get_registers,libdc1394),Error,(Ptr{CameraInfo},UInt64,Ptr{UInt32},UInt32),camera.handle,offset,value,num_regs)
     value
 end
 
-function get_register(camera::Camera,offset::UInt64)
+function get_register(camera::Camera,offset::Integer)
     value=[UInt32(0)]
     ccall((:dc1394_get_register,libdc1394),Error,(Ptr{CameraInfo},UInt64,Ptr{UInt32}),camera.handle,offset,value)
     value[1]
 end
 
-function set_registers(camera::Camera,offset::UInt64,value::Array{UInt32,1})
+function set_registers(camera::Camera,offset::Integer,value::Array{UInt32,1})
     num_regs=UInt32(size(value,1))
     ccall((:dc1394_set_registers,libdc1394),Error,(Ptr{CameraInfo},UInt64,Ptr{UInt32},UInt32),camera.handle,offset,value,num_regs)
 end
 
-function set_register(camera::Camera,offset::UInt64,value::Int)
+function set_register(camera::Camera,offset::Integer,value::Integer)
     ccall((:dc1394_set_register,libdc1394),Error,(Ptr{CameraInfo},UInt64,UInt32),camera.handle,offset,value)
 end
 
-function get_control_registers(camera::Camera,offset::UInt64,num_regs::Int)
+function get_control_registers(camera::Camera,offset::Integer,num_regs::Integer)
     value=Array{UInt32,1}(num_regs)
     ccall((:dc1394_get_control_registers,libdc1394),Error,(Ptr{CameraInfo},UInt64,Ptr{UInt32},UInt32),camera.handle,offset,value,num_regs)
     value
 end
 
-function get_control_register(camera::Camera,offset::UInt64)
+function get_control_register(camera::Camera,offset::Integer)
     value=[UInt32(0)]
     ccall((:dc1394_get_control_register,libdc1394),Error,(Ptr{CameraInfo},UInt64,Ptr{UInt32}),camera.handle,offset,value)
     value[1]
 end
 
-function set_control_registers(camera::Camera,offset::UInt64,value::Array{UInt32,1})
+function set_control_registers(camera::Camera,offset::Integer,value::Array{UInt32,1})
     num_regs=UInt32(size(value,1))
     ccall((:dc1394_set_control_registers,libdc1394),Error,(Ptr{CameraInfo},UInt64,Ptr{UInt32},UInt32),camera.handle,offset,value,num_regs)
 end
 
-function set_control_register(camera::Camera,offset::UInt64,value::Int)
+function set_control_register(camera::Camera,offset::Integer,value::Integer)
     ccall((:dc1394_set_control_register,libdc1394),Error,(Ptr{CameraInfo},UInt64,UInt32),camera.handle,offset,value)
 end
 
-function get_adv_control_registers(camera::Camera,offset::UInt64,num_regs::Int)
+function get_adv_control_registers(camera::Camera,offset::Integer,num_regs::Integer)
     value=Array{UInt32,1}(num_regs)
     ccall((:dc1394_get_adv_control_registers,libdc1394),Error,(Ptr{CameraInfo},UInt64,Ptr{UInt32},UInt32),camera.handle,offset,value,num_regs)
     value
 end
 
-function get_adv_control_register(camera::Camera,offset::UInt64)
+function get_adv_control_register(camera::Camera,offset::Integer)
     value=[UInt32(0)]
     ccall((:dc1394_get_adv_control_register,libdc1394),Error,(Ptr{CameraInfo},UInt64,Ptr{UInt32}),camera.value,offset,value)
     value[1]
 end
 
-function set_adv_control_registers(camera::Camera,offset::UInt64,value::Array{UInt32,1})
+function set_adv_control_registers(camera::Camera,offset::Integer,value::Array{UInt32,1})
     num_regs=UInt32(size(value,1))
     ccall((:dc1394_set_adv_control_registers,libdc1394),Error,(Ptr{CameraInfo},UInt64,Ptr{UInt32},UInt32),camera.handle,offset,value,num_regs)
 end
 
-function set_adv_control_register(camera::Camera,offset::UInt64,value::Int)
+function set_adv_control_register(camera::Camera,offset::Integer,value::Integer)
     ccall((:dc1394_set_adv_control_register,libdc1394),Error,(Ptr{CameraInfo},UInt64,UInt32),camera.handle,offset,value)
 end
 
-function get_format7_register(camera::Camera,mode::Int,offset::UInt64)
+function get_format7_register(camera::Camera,mode::Integer,offset::Integer)
     value=[UInt32(0)]
     ccall((:dc1394_get_format7_register,libdc1394),Error,(Ptr{CameraInfo},UInt32,UInt64,Ptr{UInt32}),camera.handle,mode,offset,value)
     value[1]
 end
 
-function set_format7_register(camera::Camera,mode::Int,offset::UInt64,value::Int)
+function set_format7_register(camera::Camera,mode::Integer,offset::Integer,value::Integer)
     ccall((:dc1394_set_format7_register,libdc1394),Error,(Ptr{CameraInfo},UInt32,UInt64,UInt32),camera.handle,mode,offset,value)
 end
 
-function get_absolute_register(camera::Camera,feature::Int,offset::UInt64)
+function get_absolute_register(camera::Camera,feature::Integer,offset::Integer)
     value=[UInt32(0)]
     ccall((:dc1394_get_absolute_register,libdc1394),Error,(Ptr{CameraInfo},UInt32,UInt64,Ptr{UInt32}),camera.handle,feature,offset,value)
     value[1]
 end
 
-function set_absolute_register(camera::Camera,feature::Int,offset::UInt64,value::Int)
+function set_absolute_register(camera::Camera,feature::Integer,offset::Integer,value::Integer)
     ccall((:dc1394_set_absolute_register,libdc1394),Error,(Ptr{CameraInfo},UInt32,UInt64,UInt32),camera.handle,feature,offset,value)
 end
 
-function get_PIO_register(camera::Camera,offset::UInt64)
+function get_PIO_register(camera::Camera,offset::Integer)
     value=[UInt32(0)]
     ccall((:dc1394_get_PIO_register,libdc1394),Error,(Ptr{CameraInfo},UInt64,Ptr{UInt32}),camera.handle,offset,value)
     value[1]
 end
 
-function set_PIO_register(camera::Camera,offset::UInt64,value::Int)
+function set_PIO_register(camera::Camera,offset::Integer,value::Integer)
     ccall((:dc1394_set_PIO_register,libdc1394),Error,(Ptr{CameraInfo},UInt64,UInt32),camera.handle,offset,value)
 end
 
-function get_SIO_register(camera::Camera,offset::UInt64)
+function get_SIO_register(camera::Camera,offset::Integer)
     value=[UInt32(0)]
     ccall((:dc1394_get_SIO_register,libdc1394),Error,(Ptr{CameraInfo},UInt64,Ptr{UInt32}),camera.handle,offset,value)
     value[1]
 end
 
-function set_SIO_register(camera::Camera,offset::UInt64,value::Int)
+function set_SIO_register(camera::Camera,offset::Integer,value::Integer)
     ccall((:dc1394_set_SIO_register,libdc1394),Error,(Ptr{CameraInfo},UInt64,UInt32),camera.handle,offset,value)
 end
 
@@ -1801,13 +1787,13 @@ function is_same(id1::CameraId,id2::CameraId)
     val==TRUE
 end
 
-function get_string(feature::Feature)
-    ptr=ccall((:dc1394_feature_get_string,libdc1394),Ptr{UInt8},(Feature,),feature)
+function string(feature::Feature)
+    ptr=ccall((:dc1394_feature_get_string,libdc1394),Cstring,(Feature,),feature)
     bytestring(ptr)
 end
 
-function get_string(error::Error)
-    ptr=ccall((:dc1394_error_get_string,libdc1394),Ptr{UInt8},(Error,),error)
+function string(error::Error)
+    ptr=ccall((:dc1394_error_get_string,libdc1394),Cstring,(Error,),error)
     bytestring(ptr)
 end
 
@@ -1817,3 +1803,24 @@ end
 Base.convert(::Type{AbstractArray},vf::DC1394.VideoFrame)=get_image(vf)
 Base.convert(::Type{Array},vf::DC1394.VideoFrame)=get_image(vf)
 Base.convert(::Type{Camera},vf::DC1394.VideoFrame)=Camera(get_info(vf).camera)
+
+
+
+"""
+enum dc1394log_t
+"""
+@enum(Log,
+      LOG_ERROR = (UInt32)(768),
+      LOG_WARNING = (UInt32)(769),
+      LOG_DEBUG = (UInt32)(770))
+
+const LOG_MIN = LOG_ERROR
+const LOG_MAX = LOG_DEBUG
+const LOG_NUM = (Int(LOG_MAX) - Int(LOG_MIN)) + 1
+function register_handler(_type::Log,log_handler::Ptr{Void},user::Ptr{Void})
+    ccall((:dc1394_log_register_handler,libdc1394),Error,(Log,Ptr{Void},Ptr{Void}),_type,log_handler,user)
+end
+
+function set_default_handler(_type::Log)
+    ccall((:dc1394_log_set_default_handler,libdc1394),Error,(Log,),_type)
+end
