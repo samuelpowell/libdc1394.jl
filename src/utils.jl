@@ -12,7 +12,34 @@ string,
 checksum_crc16
 
 
-using Compat
+"""
+enum dc1394color_coding_t
+ Enumeration of colour codings. For details on the data format please read the IIDC specifications.
+"""
+@enum(ColorCoding,
+      COLOR_CODING_MONO8 = (UInt32)(352),
+      COLOR_CODING_YUV411 = (UInt32)(353),
+      COLOR_CODING_YUV422 = (UInt32)(354),
+      COLOR_CODING_YUV444 = (UInt32)(355),
+      COLOR_CODING_RGB8 = (UInt32)(356),
+      COLOR_CODING_MONO16 = (UInt32)(357),
+      COLOR_CODING_RGB16 = (UInt32)(358),
+      COLOR_CODING_MONO16S = (UInt32)(359),
+COLOR_CODING_RGB16S = (UInt32)(360),
+COLOR_CODING_RAW8 = (UInt32)(361),
+COLOR_CODING_RAW16 = (UInt32)(362))
+
+const COLOR_CODING_MIN = COLOR_CODING_MONO8
+const COLOR_CODING_MAX = COLOR_CODING_RAW16
+const COLOR_CODING_NUM = (Int(COLOR_CODING_MAX) - Int(COLOR_CODING_MIN)) + 1
+
+immutable dc1394color_codings_t
+    num::UInt32
+    codings::NTuple{11,ColorCoding}
+    dc1394color_codings_t()=new(0,ntuple(i->COLOR_CODING_MIN,11))
+end
+show(io::IO,cs::dc1394color_codings_t)=0<fs.num<11? show(io,cs.codings[1:cs.num]):()
+
 
 function reset_bus(camera::Camera)
     ccall((:dc1394_reset_bus,libdc1394),Error,(Ptr{CameraInfo},),camera.handle)

@@ -38,16 +38,16 @@ end
 
 
 
-function convert_to_YUV422(src::Ptr{UInt8},dest::Ptr{UInt8},width::Int,height::Int,byte_order::Int,source_coding::ColorCoding,bits::Int)
-    ccall((:dc1394_convert_to_YUV422,libdc1394),Error,(Ptr{UInt8},Ptr{UInt8},UInt32,UInt32,UInt32,ColorCoding,UInt32),src,dest,width,height,byte_order,source_coding,bits)
+function convert_to_YUV422(src::Ptr{UInt8},dest::Ptr{UInt8},width::Int,height::Int,byte_order::ByteOrder,source_coding::ColorCoding,bits::Int)
+    ccall((:dc1394_convert_to_YUV422,libdc1394),Error,(Ptr{UInt8},Ptr{UInt8},UInt32,UInt32,ByteOrder,ColorCoding,UInt32),src,dest,width,height,byte_order,source_coding,bits)
 end
 
-function convert_to_MONO8(src::Ptr{UInt8},dest::Ptr{UInt8},width::Int,height::Int,byte_order::Int,source_coding::ColorCoding,bits::Int)
-    ccall((:dc1394_convert_to_MONO8,libdc1394),Error,(Ptr{UInt8},Ptr{UInt8},UInt32,UInt32,UInt32,ColorCoding,UInt32),src,dest,width,height,byte_order,source_coding,bits)
+function convert_to_MONO8(src::Ptr{UInt8},dest::Ptr{UInt8},width::Int,height::Int,byte_order::ByteOrder,source_coding::ColorCoding,bits::Int)
+    ccall((:dc1394_convert_to_MONO8,libdc1394),Error,(Ptr{UInt8},Ptr{UInt8},UInt32,UInt32,ByteOrder,ColorCoding,UInt32),src,dest,width,height,byte_order,source_coding,bits)
 end
 
-function convert_to_RGB8(src::Ptr{UInt8},dest::Ptr{UInt8},width::Int,height::Int,byte_order::Int,source_coding::ColorCoding,bits::Int)
-    ccall((:dc1394_convert_to_RGB8,libdc1394),Error,(Ptr{UInt8},Ptr{UInt8},UInt32,UInt32,UInt32,ColorCoding,UInt32),src,dest,width,height,byte_order,source_coding,bits)
+function convert_to_RGB8(src::Ptr{UInt8},dest::Ptr{UInt8},width::Int,height::Int,ByteOrder::Int,source_coding::ColorCoding,bits::Int)
+    ccall((:dc1394_convert_to_RGB8,libdc1394),Error,(Ptr{UInt8},Ptr{UInt8},UInt32,UInt32,ByteOrder,ColorCoding,UInt32),src,dest,width,height,byte_order,source_coding,bits)
 end
 
 function deinterlace_stereo(src::Ptr{UInt8},dest::Ptr{UInt8},width::Int,height::Int)

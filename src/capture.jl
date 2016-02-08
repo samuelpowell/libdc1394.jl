@@ -7,7 +7,7 @@ immutable dc1394video_frame_t
     position::Tuple{UInt32,UInt32}
     color_coding::ColorCoding
     color_filter::ColorFilter
-    yuv_byte_order::UInt32
+    yuv_byte_order::ByteOrder
     data_depth::UInt32
     stride::UInt32
     video_mode::VideoMode

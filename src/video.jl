@@ -8,6 +8,63 @@ set_transmission,get_transmission,
 set_one_shot,get_one_shot,
 set_multi_shot,get_multi_shot,
 get_bandwidth_usage
+
+
+"""
+enum dc1394video_mode_t
+Enumeration of video modes.
+"""
+@enum(VideoMode,
+      VIDEO_MODE_160x120_YUV444 = (UInt32)(64),
+      VIDEO_MODE_320x240_YUV422 = (UInt32)(65),
+      VIDEO_MODE_640x480_YUV411 = (UInt32)(66),
+      VIDEO_MODE_640x480_YUV422 = (UInt32)(67),
+      VIDEO_MODE_640x480_RGB8 = (UInt32)(68),
+      VIDEO_MODE_640x480_MONO8 = (UInt32)(69),
+      VIDEO_MODE_640x480_MONO16 = (UInt32)(70),
+      VIDEO_MODE_800x600_YUV422 = (UInt32)(71),
+      VIDEO_MODE_800x600_RGB8 = (UInt32)(72),
+VIDEO_MODE_800x600_MONO8 = (UInt32)(73),
+VIDEO_MODE_1024x768_YUV422 = (UInt32)(74),
+VIDEO_MODE_1024x768_RGB8 = (UInt32)(75),
+VIDEO_MODE_1024x768_MONO8 = (UInt32)(76),
+VIDEO_MODE_800x600_MONO16 = (UInt32)(77),
+VIDEO_MODE_1024x768_MONO16 = (UInt32)(78),
+VIDEO_MODE_1280x960_YUV422 = (UInt32)(79),
+VIDEO_MODE_1280x960_RGB8 = (UInt32)(80),
+VIDEO_MODE_1280x960_MONO8 = (UInt32)(81),
+VIDEO_MODE_1600x1200_YUV422 = (UInt32)(82),
+VIDEO_MODE_1600x1200_RGB8 = (UInt32)(83),
+VIDEO_MODE_1600x1200_MONO8 = (UInt32)(84),
+VIDEO_MODE_1280x960_MONO16 = (UInt32)(85),
+VIDEO_MODE_1600x1200_MONO16 = (UInt32)(86),
+VIDEO_MODE_EXIF = (UInt32)(87),
+VIDEO_MODE_FORMAT7_0 = (UInt32)(88),
+VIDEO_MODE_FORMAT7_1 = (UInt32)(89),
+VIDEO_MODE_FORMAT7_2 = (UInt32)(90),
+VIDEO_MODE_FORMAT7_3 = (UInt32)(91),
+VIDEO_MODE_FORMAT7_4 = (UInt32)(92),
+VIDEO_MODE_FORMAT7_5 = (UInt32)(93),
+VIDEO_MODE_FORMAT7_6 = (UInt32)(94),
+VIDEO_MODE_FORMAT7_7 = (UInt32)(95))
+
+const VIDEO_MODE_MIN = VIDEO_MODE_160x120_YUV444
+const VIDEO_MODE_MAX = VIDEO_MODE_FORMAT7_7
+const VIDEO_MODE_NUM = (Int(VIDEO_MODE_MAX) - Int(VIDEO_MODE_MIN)) + 1
+const VIDEO_MODE_FORMAT7_MIN = VIDEO_MODE_FORMAT7_0
+const VIDEO_MODE_FORMAT7_MAX = VIDEO_MODE_FORMAT7_7
+const VIDEO_MODE_FORMAT7_NUM = (Int(VIDEO_MODE_FORMAT7_MAX) - Int(VIDEO_MODE_FORMAT7_MIN)) + 1
+
+
+immutable dc1394video_modes_t
+    num::UInt32
+    modes::NTuple{32,VideoMode}
+    dc1394video_modes_t()=new(UInt32(0),ntuple(x->VIDEO_MODE_MIN,32))
+end
+show(io::IO,vms::dc1394video_modes_t)=0<vms.num<32? show(io,vms.modes[1:vms.num]) :()
+
+
+
 function get_supported_video_modes(camera::Camera)
     modes=Array{dc1394video_modes_t,1}(1)
     ccall((:dc1394_video_get_supported_modes,libdc1394),

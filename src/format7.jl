@@ -17,6 +17,8 @@ format7_get_pixel_number,
 format7_get_total_bytes,
 format7_get_modeset,format7_get_mode_info
 
+
+
 immutable Format7Mode
     present::Bool
     size_x::UInt32
