@@ -8,4 +8,4 @@ Pkg.clone("https://github.com/TakekazuKATO/DC1394.jl.git")
 ```
 
 ## Example
-[example.md]
+[example](./example.md)
