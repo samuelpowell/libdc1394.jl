@@ -54,7 +54,7 @@ function get_info(vf::VideoFrame)
 end
 function get_image(vf::VideoFrame)
     frame=get_info(vf)
-    imp=pointer_to_array(frame.image,frame.image_bytes)
+    imp=unsafe_wrap(Array,frame.image,frame.image_bytes)
     bpp=Int(div(frame.image_bytes,frame.size[1]*frame.size[2]))
     if bpp==1
         return reshape(imp,Int(frame.size[1]),Int(frame.size[2]))
