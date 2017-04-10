@@ -8,7 +8,7 @@ function convert{T<:Enum}(::Type{T},str::AbstractString)
     end
 end
 convert{T<:Enum}(::Type{AbstractString},enumvalue::T)="$enumvalue"
-convert(::Type{AbstractString},cs::Cstring)=bytestring(cs)
+convert(::Type{AbstractString},cs::Cstring)=unsafe_string(cs)
 show(io::IO,cs::Cstring)=print(io,AbstractString(cs))
 
 """

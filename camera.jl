@@ -31,7 +31,7 @@ function capture_callback(cam)
             end
         end
     end
-    
+
     if isdefined(:colorframe) && coorframe!=nothing
         colorframe=debayer(vf,colorframe,DC1394.BAYER_METHOD_DOWNSAMPLE)
     else
@@ -59,7 +59,7 @@ function camera_list()
         else
             clist=foldr(vcat,map(ids) do id
                         c=DC1394.dc1394camera_info_t(Camera(id))
-                        [@sprintf("0x%016x",id.guid) @sprintf("0x%08x",id.unit) bytestring(c.vendor) bytestring(c.model)]
+                        [@sprintf("0x%016x",id.guid) @sprintf("0x%08x",id.unit) unsafe_string(c.vendor) unsafe_string(c.model)]
                         end)
             set_items(tree,clist)
         end
@@ -130,7 +130,7 @@ function camera_control(camera::Camera,name)
     # featureのコントロール
     for feature in DC1394.get_features(camera)
         if feature.available == DC1394.TRUE
-            l = Labelframe(control_panel,String(feature.id))
+            l = Labelframe(control_panel, string(feature.id))
             pack(l,side="top",expand=true,fill="both",padx=3)
             if feature.id == DC1394.FEATURE_WHITE_BALANCE
                 frame=Frame(l)
@@ -183,7 +183,7 @@ function camera_control(camera::Camera,name)
                     set_whiteshading(camera,val_b,val_r,val_g)
                     Tk.set_value(lv,"$val")
                 end
-                
+
                 frame=Frame(l)
                 pack(frame,side="top")
                 pack(Label(frame,"R"),side="left")
@@ -201,7 +201,7 @@ function camera_control(camera::Camera,name)
                     set_whiteshading(camera,val_b,val_g,val_r)
                     Tk.set_value(lv,"$val")
                 end
-                
+
                 frame=Frame(l)
                 pack(frame,side="top")
                 pack(Label(frame,"G"),side="left")

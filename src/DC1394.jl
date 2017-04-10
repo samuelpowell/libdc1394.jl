@@ -1,6 +1,6 @@
 module DC1394
 using Compat
-import Base: convert, show
+import Base: convert, show, string
 include("../deps/deps.jl")
 
 typealias dc1394_t Void
