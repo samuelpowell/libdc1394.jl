@@ -50,7 +50,7 @@ immutable VideoFrame
     handle::Ptr{dc1394video_frame_t}
 end
 function get_info(vf::VideoFrame)
-    if vs.handle != C_NULL
+    if vf.handle != C_NULL
       return unsafe_load(vf.handle)
     else
       return dc1394video_frame_t()
