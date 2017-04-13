@@ -28,7 +28,7 @@ immutable dc1394video_frame_t
                               (0,0),
                               COLOR_CODING_MIN,
                               COLOR_FILTER_MIN,
-                              0,
+                              BYTE_ORDER_MIN,
                               0,
                               0,
                               VIDEO_MODE_MIN,
