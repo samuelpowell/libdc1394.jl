@@ -30,8 +30,6 @@ export
 
 """
 enum dc1394color_coding_t
- Enumeration of colour codings. For details on the data format please read the
- IIDC specifications.
 """
 @enum(dc1394color_coding_t,
       COLOR_CODING_MONO8 = (UInt32)(352),
