@@ -318,4 +318,4 @@ function format7_get_roi(camera::Camera,video_mode::dc1394video_mode_t)
     camera.handle,video_mode,color_coding,packet_size,left,top,width,height)
   (color_coding[1],Int(packet_size[1]),Int(left[1]),Int(top[1]),Int(width[1]),Int(height[1]))
 end
-format7_get_roi(camera::Camera,video_mode::dc1394video_mode_t)=format7_get_roi(camera,video_get_mode(camera))
+format7_get_roi(camera::Camera)=format7_get_roi(camera,video_get_mode(camera))

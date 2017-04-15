@@ -102,7 +102,7 @@ end
 function iso_release_channel(camera::Camera,channel::Integer)
   ccall((:dc1394_iso_release_channel,libdc1394),
     dc1394error_t,
-    Ptr{dc1394camera_info_t},Cint),
+    (Ptr{dc1394camera_info_t},Cint),
     camera.handle,channel)
 end
 

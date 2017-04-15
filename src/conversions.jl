@@ -3,8 +3,8 @@
 # Copyright (C) 2017 Samuel Powell
 
 export
-  convert_frames
-  debayer_frames
+  convert_frames,
+  debayer_frames,
   deinterlace_stereo_frames
 
 # begin enum dc1394bayer_method_t
