@@ -5,17 +5,6 @@
 export
   pio_set,
   pio_get,
-  reset_bus,
-  set_power,
-  memory_busy,
-  memory_save,
-  memory_load,
-  iso_set_persist,
-  iso_allocate_channel,
-  iso_release_channel,
-  iso_allocate_bandwidth,
-  iso_release_bandwidth,
-  iso_release_all,
   get_image_size_from_video_mode,
   get_color_coding_data_depth,
   get_color_coding_bit_size,
@@ -25,24 +14,6 @@ export
   is_video_mode_still_image,
   error_get_string,
   checksum_crc16
-
-
-function reset_bus(camera::Camera)
-  ccall((:dc1394_reset_bus,libdc1394),
-    dc1394error_t,
-    (Ptr{dc1394camera_info_t},),
-    camera.handle)
-end
-
-function read_cycle_timer(camera::Camera)
-  cycle_timer=[UInt32(0)]
-  local_time=[UInt64(0)]
-  ccall((:dc1394_read_cycle_timer,libdc1394),
-    dc1394error_t,
-    (Ptr{dc1394camera_info_t},Ptr{UInt32},Ptr{UInt64}),
-    camera.handle,cycle_timer,local_time)
-  (Int(cycle_timer[1]),local_time[1])
-end
 
 function pio_set(camera::Camera,value::Int)
   ccall((:dc1394_pio_set,libdc1394),
@@ -58,73 +29,6 @@ function pio_get(camera::Camera)
     (Ptr{dc1394camera_info_t},Ptr{UInt32}),
     camera.handle,value)
   Int(value[1])
-end
-
-function memory_busy(camera::Camera)
-  value=[dc1394bool_t(FALSE)]
-  ccall((:dc1394_memory_busy,libdc1394),
-    dc1394error_t,
-    (Ptr{dc1394camera_info_t},Ptr{dc1394bool_t}),
-    camera.handle,value)
-  value[1]==TRUE
-end
-
-function memory_save(camera::Camera,channel::Int)
-  ccall((:dc1394_memory_save,libdc1394),
-    dc1394error_t,
-    (Ptr{dc1394camera_info_t},UInt32),
-    camera.handle,channel)
-end
-
-function memory_load(camera::Camera,channel::Int)
-  ccall((:dc1394_memory_load,libdc1394),
-    dc1394error_t,
-    (Ptr{dc1394camera_info_t},UInt32),
-    camera.handle,channel)
-end
-
-function iso_set_persist(camera::Camera)
-  ccall((:dc1394_iso_set_persist,libdc1394),
-    dc1394error_t,
-    (Ptr{dc1394camera_info_t},),
-    camera.handle)
-end
-
-function iso_allocate_channel(camera::Camera,channels_allowed::Integer)
-  channel=[Cint(0)]
-  ccall((:dc1394_iso_allocate_channel,libdc1394),
-    dc1394error_t,
-    (Ptr{dc1394camera_info_t},UInt64,Ptr{Cint}),
-    camera.handle,channels_allowed,channel)
-  channel[1]
-end
-
-function iso_release_channel(camera::Camera,channel::Integer)
-  ccall((:dc1394_iso_release_channel,libdc1394),
-    dc1394error_t,
-    (Ptr{dc1394camera_info_t},Cint),
-    camera.handle,channel)
-end
-
-function iso_allocate_bandwidth(camera::Camera,bandwidth_units::Integer)
-  ccall((:dc1394_iso_allocate_bandwidth,libdc1394),
-    dc1394error_t,
-    (Ptr{dc1394camera_info_t},Cint),
-    camera.handle,bandwidth_units)
-end
-
-function iso_release_bandwidth(camera::Camera,bandwidth_units::Integer)
-  ccall((:dc1394_iso_release_bandwidth,libdc1394),
-    dc1394error_t,
-    (Ptr{dc1394camera_info_t},Cint),
-    camera.handle,bandwidth_units)
-end
-
-function iso_release_all(camera::Camera)
-  ccall((:dc1394_iso_release_all,libdc1394),
-    dc1394error_t,
-    (Ptr{dc1394camera_info_t},),
-    camera.handle)
 end
 
 function get_registers(camera::Camera,offset::Integer,num_regs::Integer)
@@ -386,32 +290,4 @@ function checksum_crc16(buffer::Ptr{UInt8},buffer_size::Int)
     UInt16,
     (Ptr{UInt8},UInt32),
     buffer,buffer_size)
-end
-
-
-
-"""
-enum dc1394log_t
-"""
-@enum(dc1394log_t,
-      LOG_ERROR = (UInt32)(768),
-      LOG_WARNING = (UInt32)(769),
-      LOG_DEBUG = (UInt32)(770))
-
-const LOG_MIN = LOG_ERROR
-const LOG_MAX = LOG_DEBUG
-const LOG_NUM = (Int(LOG_MAX) - Int(LOG_MIN)) + 1
-
-function register_handler(_type::dc1394log_t,log_handler::Ptr{Void},user::Ptr{Void})
-  ccall((:dc1394_log_register_handler,libdc1394),
-    dc1394error_t,
-    (dc1394log_t,Ptr{Void},Ptr{Void}),
-    _type,log_handler,user)
-end
-
-function set_default_handler(_type::dc1394log_t)
-  ccall((:dc1394_log_set_default_handler,libdc1394),
-    dc1394error_t,
-    (dc1394log_t,),
-    _type)
 end

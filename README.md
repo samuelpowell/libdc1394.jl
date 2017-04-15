@@ -1,12 +1,10 @@
 ## libdc1394.jl
 
-
 [![Build Status](https://travis-ci.org/samuelpowell/libdc1394.jl.svg?branch=master)](https://travis-ci.org/samuelpowell/libdc1394.jl)
 
 [![Coverage Status](https://coveralls.io/repos/samuelpowell/libdc1394.jl/badge.svg?branch=master&service=github)](https://coveralls.io/github/samuelpowell/libdc1394.jl?branch=master)
 
 [![codecov.io](http://codecov.io/github/samuelpowell/libdc1394.jl/coverage.svg?branch=master)](http://codecov.io/github/samuelpowell/libdc1394.jl?branch=master)
-
 
 This package is a low-level Julia wrapper of the [libdc1394](http://damien.douxchamps.net/ieee1394/libdc1394/) library, currently targeting v2.2.4 (the latest version on libdc1394 (v2.2.5) has build errors on macOS which have been fixed in the development version).
 
@@ -16,7 +14,7 @@ This is a fork of the original work by [TakekazuKATO](https://github.com/Takekaz
 + libSDL dependencies managed by library;
 + fixes for segfaults when using polling transfers;
 + removal of aliased format 7 functions (avoiding method ambiguities);
-+ more direct mapping of library names to Julia names. 
++ more direct mapping of library names to Julia names.
 
 ## Compatibility
 
@@ -44,15 +42,13 @@ libdc1394.jl adheres closely to the libdc1394 API with some exceptions:
 
 The following subsections detail the specifics of the API mappings as detailed on the [libdc1394](http://damien.douxchamps.net/ieee1394/libdc1394/) homepage.
 
-### Types & Structures
+### System & Camera
 
-### System
-
-System functions are mostly handled internally through automatic context creation and management, camera and video frame types, as detailed above.
+System functions are mostly handled internally through automatic context creation and management, and the `Camera` and `VideoFrame` types detailed above. The implementation is split between `libdc1394.jl` and `camera.jl`.
 
 ### Triggers
 
-All trigger functions are directly mapped to Julia functions (these functions are part of the `control.h` header in libdc1394).
+All trigger functions are directly mapped to Julia functions.
 
 ```
 dc1394_external_trigger_set_polarity
@@ -125,7 +121,7 @@ dc1394_capture_is_frame_corrupt
 dc1394_capture_set_callback
 ```
 
-Two additional functions are used to extract the frame information and the video data from a video frame pointer returned by libDC1394.
+Two additional functions are used to extract the frame information and the video data from a video frame pointer returned by libdc1394.
 
 ```
 get_info
@@ -211,15 +207,6 @@ dc1394_is_same_camera
 dc1394_feature_get_string
 ```
 
-There are additional functions which should be moved (WIP)
-
 ### Errors
 
 WIP
-
-
-
-
-
-
-
