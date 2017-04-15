@@ -161,16 +161,16 @@ function capture_set_callback(camera::Camera,callback::Ptr{Void},data::Ptr{Void}
 end
 
 function capture_set_callback(callback::Function,camera::Camera)
-    global gcallback=callback;
-    function mycallback{T,N}(camera::T, data::N)
-        global gcallback;
-        cc=Camera(camera);
-            gcallback(cc)
-        nothing
-    end
-    ccallback=cfunction(mycallback,Void,(Ptr{dc1394camera_info_t},Ptr{Void}))
-    ccall((:dc1394_capture_set_callback,libdc1394),
-      Void,
-      (Ptr{dc1394camera_info_t},Ptr{Void},Ptr{Void}),
-      camera.handle,ccallback,C_NULL)
+  global gcallback=callback;
+  function mycallback{T,N}(camera::T, data::N)
+    global gcallback;
+    cc=Camera(camera);
+      gcallback(cc)
+    nothing
+  end
+  ccallback=cfunction(mycallback,Void,(Ptr{dc1394camera_info_t},Ptr{Void}))
+  ccall((:dc1394_capture_set_callback,libdc1394),
+    Void,
+    (Ptr{dc1394camera_info_t},Ptr{Void},Ptr{Void}),
+    camera.handle,ccallback,C_NULL)
 end

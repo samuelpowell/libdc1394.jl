@@ -61,6 +61,7 @@ immutable dc1394trigger_sources_t
     sources::NTuple{5,dc1394trigger_source_t}
     dc1394trigger_sources_t()=new(0,ntuple(i->TRIGGER_SOURCE_MIN,5))
 end
+
 show(io::IO,fm::dc1394trigger_sources_t)=0<fm.num<5? show(io,fm.sources[1:fm.num]):()
 
 # begin enum dc1394trigger_polarity_t

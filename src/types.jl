@@ -1,11 +1,11 @@
 function convert{T<:Enum}(::Type{T},str::AbstractString)
-    ins=instances(T)
-    i=findfirst(i->"$i"==str,ins)
-    if i>0
-        ins[i]
-    else
-        nothing
-    end
+  ins=instances(T)
+  i=findfirst(i->"$i"==str,ins)
+  if i>0
+      ins[i]
+  else
+      nothing
+  end
 end
 convert{T<:Enum}(::Type{AbstractString},enumvalue::T)="$enumvalue"
 convert(::Type{AbstractString},cs::Cstring)=unsafe_string(cs)
@@ -79,7 +79,6 @@ INVALID_STEREO_METHOD = (Int32)(-36),
 BASLER_NO_MORE_SFF_CHUNKS = (Int32)(-37),
 BASLER_CORRUPTED_SFF_CHUNK = (Int32)(-38),
 BASLER_UNKNOWN_SFF_CHUNK = (Int32)(-39))
-
 
 const ERROR_MIN = BASLER_UNKNOWN_SFF_CHUNK
 const ERROR_MAX = SUCCESS
