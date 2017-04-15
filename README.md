@@ -1,5 +1,13 @@
 ## libdc1394.jl
 
+
+[![Build Status](https://travis-ci.org/samuelpowell/libdc1394.jl.svg?branch=master)](https://travis-ci.org/samuelpowell/libdc1394.jl)
+
+[![Coverage Status](https://coveralls.io/repos/samuelpowell/libdc1394.jl/badge.svg?branch=master&service=github)](https://coveralls.io/github/samuelpowell/libdc1394.jl?branch=master)
+
+[![codecov.io](http://codecov.io/github/samuelpowell/libdc1394.jl/coverage.svg?branch=master)](http://codecov.io/github/samuelpowell/libdc1394.jl?branch=master)
+
+
 This package is a low-level Julia wrapper of the [libdc1394](http://damien.douxchamps.net/ieee1394/libdc1394/) library, currently targeting v2.2.4 (the latest version on libdc1394 (v2.2.5) has build errors on macOS which have been fixed in the development version).
 
 This is a fork of the original work by [TakekazuKATO](https://github.com/TakekazuKATO/DC1394.jl), with the following small changes:
