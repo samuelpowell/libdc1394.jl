@@ -1,3 +1,7 @@
+# libDC1394.jl: interface to the libDC1394 library
+# Copyright (c) 2016 tkato
+# Copyright (C) 2017 Samuel Powell
+
 export
   video_get_supported_modes,
   video_get_supported_framerates,
