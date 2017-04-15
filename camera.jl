@@ -98,8 +98,8 @@ end
 # カメラコントロールウィンドウを作成
 function camera_control(camera::Camera,name)
     control_panel=Toplevel(name)    # トップレベルウィジットを取得
-    modes=get_supported_video_modes(camera)#サポートするビデオモード一覧
-    mode=get_video_mode(camera) #現在のビデオモード
+    modes=video_get_supported_modes(camera)#サポートするビデオモード一覧
+    mode=video_get_mode(camera) #現在のビデオモード
     vfcombo=Combobox(control_panel,map(i->"$i",[modes...]))
     clcombo=Combobox(control_panel)
     pack(vfcombo,side="top",expand=true,fill="both")
@@ -119,7 +119,7 @@ function camera_control(camera::Camera,name)
     bind(vfcombo,"<<ComboboxSelected>>") do path
         mode=DC1394.dc1394video_mode_t(Tk.get_value(vfcombo))
         println(mode)
-        set_video_mode(camera,mode)
+        video_set_mode(camera,mode)
         set_codings(camera,clcombo,mode)
     end
     bind(clcombo,"<<ComboboxSelected>>") do path
@@ -267,7 +267,7 @@ function camera_control(camera::Camera,name)
     pack(b,side="right")
     bind(b,"command") do path
         if Tk.get_value(b)
-            set_transmission(camera,DC1394.ON)
+            video_set_transmission(camera,DC1394.ON)
             capture_setup(camera)
         else
             destroy(imagecanvas.c)

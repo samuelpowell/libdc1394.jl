@@ -194,7 +194,7 @@ function get_image_size(camera::Camera,video_mode::dc1394video_mode_t)
           camera.handle,video_mode,width,height)
     (Int(width[1]),Int(height[1]))
 end
-get_image_size(camera::Camera)=get_image_size(camera,get_video_mode(camera))
+get_image_size(camera::Camera)=get_image_size(camera,video_get_mode(camera))
 
 
 function get_data_depth(color_coding::dc1394color_coding_t)
@@ -214,7 +214,7 @@ function get_color_coding(camera::Camera,video_mode::dc1394video_mode_t)
     ccall((:dc1394_get_color_coding_from_video_mode,libdc1394),dc1394error_t,(Ptr{dc1394camera_info_t},dc1394video_mode_t,Ptr{dc1394color_coding_t}),camera.handle,video_mode,color_coding)
     color_coding[1]
 end
-get_color_coding(camera::Camera)=get_color_coding(camera,get_video_mode(camera))
+get_color_coding(camera::Camera)=get_color_coding(camera,video_get_mode(camera))
 
 function is_color(color_mode::dc1394color_coding_t)
     is_color=[dc1394bool_t(FALSE)]
