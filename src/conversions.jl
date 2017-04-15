@@ -76,4 +76,3 @@ deinterlace_stereo(_in::VideoFrame,method::dc1394bayer_method_t)=deinterlace_ste
 # function bayer_decoding_16bit(bayer::Ptr{UInt16},rgb::Ptr{UInt16},width::Int,height::Int,tile::dc1394color_filter_t,method::dc1394bayer_method_t,bits::Int)
 #     ccall((:dc1394_bayer_decoding_16bit,libdc1394),dc1394error_t,(Ptr{UInt16},Ptr{UInt16},UInt32,UInt32,dc1394color_filter_t,dc1394bayer_method_t,UInt32),bayer,rgb,width,height,tile,method,bits)
 # end
-
