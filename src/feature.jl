@@ -157,7 +157,7 @@ function string(feature::dc1394feature_t)
               Cstring,(dc1394feature_t,),feature)
     unsafe_string(ptr)
 end
-show(io::IO,feature::dc1394feature_t)=show(io,string(feature))
+
 convert(::Type{AbstractString},feature::dc1394feature_t)=string(feature)
 
 immutable dc1394feature_info_t

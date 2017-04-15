@@ -1,4 +1,11 @@
-export convert_frames,debayer,deinterlace_stereo
+# libDC1394.jl: interface to the libDC1394 library
+# Copyright (c) 2016 tkato
+# Copyright (C) 2017 Samuel Powell
+
+export
+  convert_frames,
+  debayer_frames,
+  deinterlace_stereo_frames
 
 # begin enum dc1394bayer_method_t
 @enum(dc1394bayer_method_t,
@@ -26,32 +33,40 @@ const STEREO_METHOD_MIN = STEREO_METHOD_INTERLACED
 const STEREO_METHOD_MAX = STEREO_METHOD_FIELD
 const STEREO_METHOD_NUM = (Int(STEREO_METHOD_MAX) - Int(STEREO_METHOD_MIN)) + 1
 
-
 function convert_frames(_in::VideoFrame,out::VideoFrame)
-    ccall((:dc1394_convert_frames,libdc1394),dc1394error_t,(Ptr{dc1394video_frame_t},Ptr{dc1394video_frame_t}),_in.handle,out.handle)
+  ccall((:dc1394_convert_frames,libdc1394),
+    dc1394error_t,
+    (Ptr{dc1394video_frame_t},Ptr{dc1394video_frame_t}),
+    _in.handle,out.handle)
 end
 
-function debayer(_in::VideoFrame,out::VideoFrame,method::dc1394bayer_method_t)
-    ptr::Ptr{dc1394video_frame_t}=out.handle
-    if ptr==C_NULL
-        ptr=Ptr{dc1394video_frame_t}(Libc.calloc(1,sizeof(dc1394video_frame_t)))
-    end
-    err=ccall((:dc1394_debayer_frames,libdc1394),dc1394error_t,(Ptr{dc1394video_frame_t},Ptr{dc1394video_frame_t},dc1394bayer_method_t),_in.handle,ptr,method)
-    VideoFrame(ptr)
+function debayer_frames(_in::VideoFrame,out::VideoFrame,method::dc1394bayer_method_t)
+  ptr::Ptr{dc1394video_frame_t}=out.handle
+  if ptr==C_NULL
+    ptr=Ptr{dc1394video_frame_t}(Libc.calloc(1,sizeof(dc1394video_frame_t)))
+  end
+  err=ccall((:dc1394_debayer_frames,libdc1394),
+    dc1394error_t,(Ptr{dc1394video_frame_t},
+    Ptr{dc1394video_frame_t},dc1394bayer_method_t),
+    _in.handle,ptr,method)
+  VideoFrame(ptr)
 end
-debayer(_in::VideoFrame,method::dc1394bayer_method_t)=debayer(_in,VideoFrame(C_NULL),method)
 
-function deinterlace_stereo(_in::VideoFrame,out::VideoFrame,method::dc1394stereo_method_t)
-    ptr::Ptr{dc1394video_frame_t}=out.handle
-    if ptr==C_NULL
-        ptr=Ptr{dc1394video_frame_t}(Libc.calloc(1,sizeof(dc1394video_frame_t)))
-    end
-    ccall((:dc1394_deinterlace_stereo_frames,libdc1394),dc1394error_t,(Ptr{dc1394video_frame_t},Ptr{dc1394video_frame_t},dc1394stereo_method_t),_in,out,method)
-    VideoFrame(ptr)
+debayer_frames(_in::VideoFrame,method::dc1394bayer_method_t)=debayer(_in,VideoFrame(C_NULL),method)
+
+function deinterlace_stereo_frames(_in::VideoFrame,out::VideoFrame,method::dc1394stereo_method_t)
+  ptr::Ptr{dc1394video_frame_t}=out.handle
+  if ptr==C_NULL
+    ptr=Ptr{dc1394video_frame_t}(Libc.calloc(1,sizeof(dc1394video_frame_t)))
+  end
+  ccall((:dc1394_deinterlace_stereo_frames,libdc1394),
+    dc1394error_t,
+    (Ptr{dc1394video_frame_t},Ptr{dc1394video_frame_t},dc1394stereo_method_t),
+    _in,out,method)
+  VideoFrame(ptr)
 end
-deinterlace_stereo(_in::VideoFrame,method::dc1394bayer_method_t)=deinterlace_stereo(_in,VideoFrame(C_NULL),method)
 
-
+deinterlace_stereo_frames(_in::VideoFrame,method::dc1394bayer_method_t)=deinterlace_stereo(_in,VideoFrame(C_NULL),method)
 
 # function convert_to_YUV422(src::Ptr{UInt8},dest::Ptr{UInt8},width::Int,height::Int,byte_order::dc1394byte_order_t,source_coding::dc1394color_coding_t,bits::Int)
 #     ccall((:dc1394_convert_to_YUV422,libdc1394),dc1394error_t,(Ptr{UInt8},Ptr{UInt8},UInt32,UInt32,dc1394byte_order_t,dc1394color_coding_t,UInt32),src,dest,width,height,byte_order,source_coding,bits)
@@ -76,4 +91,3 @@ deinterlace_stereo(_in::VideoFrame,method::dc1394bayer_method_t)=deinterlace_ste
 # function bayer_decoding_16bit(bayer::Ptr{UInt16},rgb::Ptr{UInt16},width::Int,height::Int,tile::dc1394color_filter_t,method::dc1394bayer_method_t,bits::Int)
 #     ccall((:dc1394_bayer_decoding_16bit,libdc1394),dc1394error_t,(Ptr{UInt16},Ptr{UInt16},UInt32,UInt32,dc1394color_filter_t,dc1394bayer_method_t,UInt32),bayer,rgb,width,height,tile,method,bits)
 # end
-
