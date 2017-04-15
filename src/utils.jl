@@ -234,7 +234,7 @@ end
 
 function string(error::dc1394error_t)
     ptr=ccall((:dc1394_error_get_string,libdc1394),Cstring,(dc1394error_t,),error)
-    bytestring(ptr)
+    unsafe_string(ptr)
 end
 
 function checksum_crc16(buffer::Ptr{UInt8},buffer_size::Int)

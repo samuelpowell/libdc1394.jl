@@ -18,7 +18,7 @@ function camera_enumerate()
     list=Array{Ptr{dc1394camera_list_t},1}(1)
     err=ccall((:dc1394_camera_enumerate,libdc1394),dc1394error_t,(Ptr{dc1394_t},Ptr{Ptr{dc1394camera_list_t}}),dc1394,list)
     l=unsafe_load(list[1])
-    ids=copy(pointer_to_array(l.ids,l.num));
+    ids=copy(unsafe_wrap(Array,l.ids,l.num));
     ccall((:dc1394_camera_free_list,libdc1394),Void,(Ptr{dc1394camera_list_t},),list[1])
     ids
 end

@@ -155,7 +155,7 @@ const FEATURE_NUM = (Int(FEATURE_MAX) - Int(FEATURE_MIN)) + 1
 function string(feature::dc1394feature_t)
     ptr=ccall((:dc1394_feature_get_string,libdc1394),
               Cstring,(dc1394feature_t,),feature)
-    bytestring(ptr)
+    unsafe_string(ptr)
 end
 show(io::IO,feature::dc1394feature_t)=show(io,string(feature))
 convert(::Type{AbstractString},feature::dc1394feature_t)=string(feature)
