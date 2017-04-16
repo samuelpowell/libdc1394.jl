@@ -1,6 +1,11 @@
-# libDC1394.jl: interface to the libDC1394 library
-# Copyright (c) 2016 tkato
-# Copyright (C) 2017 Samuel Powell
+# DC1394.jl: interface to the libDC1394 library
+# Copyright (C) 2016 tkato, 2017 Samuel Powell
+
+# errors.jl - function mappings for error.h (partial)
+
+export
+  log_register_handler,
+  log_set_default_handler
 
 """
 enum dc1394error_t
@@ -63,15 +68,15 @@ const LOG_MIN = LOG_ERROR
 const LOG_MAX = LOG_DEBUG
 const LOG_NUM = (Int(LOG_MAX) - Int(LOG_MIN)) + 1
 
-function register_handler(_type::dc1394log_t,log_handler::Ptr{Void},user::Ptr{Void})
-  ccall((:dc1394_log_register_handler,libdc1394),
+function log_register_handler(_type::dc1394log_t,log_handler::Ptr{Void},user::Ptr{Void})
+  @dcassert ccall((:dc1394_log_register_handler,libdc1394),
     dc1394error_t,
     (dc1394log_t,Ptr{Void},Ptr{Void}),
     _type,log_handler,user)
 end
 
-function set_default_handler(_type::dc1394log_t)
-  ccall((:dc1394_log_set_default_handler,libdc1394),
+function log_set_default_handler(_type::dc1394log_t)
+  @dcassert ccall((:dc1394_log_set_default_handler,libdc1394),
     dc1394error_t,
     (dc1394log_t,),
     _type)

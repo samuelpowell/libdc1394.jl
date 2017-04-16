@@ -1,6 +1,7 @@
-# libDC1394.jl: interface to the libDC1394 library
-# Copyright (c) 2016 tkato
-# Copyright (C) 2017 Samuel Powell
+# DC1394.jl: interface to the libDC1394 library
+# Copyright (C) 2016 tkato, 2017 Samuel Powell
+
+# capture.jl - function mappings for capture.h (complete)
 
 export
   get_info,
@@ -67,11 +68,7 @@ immutable VideoFrame
 end
 
 function get_info(vf::VideoFrame)
-  if vf.handle != C_NULL
-    return unsafe_load(vf.handle)
-  else
-    return dc1394video_frame_t()
-  end
+  vf.hanlde == C_NULL ? dc1394video_frame_t() : unsafe_load(vf.handle)
 end
 
 function get_image(vf::VideoFrame)
@@ -85,9 +82,9 @@ function get_image(vf::VideoFrame)
   end
 end
 
-convert(::Type{AbstractArray},vf::DC1394.VideoFrame)=get_image(vf)
-convert(::Type{Array},vf::DC1394.VideoFrame)=get_image(vf)
-convert(::Type{Camera},vf::DC1394.VideoFrame)=Camera(get_info(vf).camera)
+convert(::Type{AbstractArray},vf::VideoFrame)=get_image(vf)
+convert(::Type{Array},vf::VideoFrame)=get_image(vf)
+convert(::Type{Camera},vf::VideoFrame)=Camera(get_info(vf).camera)
 show(io::IO,vf::VideoFrame)=show(io,get_info(vf))
 
 @enum(dc1394capture_flags_t,
@@ -107,14 +104,14 @@ const CAPTURE_POLICY_MAX = CAPTURE_POLICY_POLL
 const CAPTURE_POLICY_NUM = (Int(CAPTURE_POLICY_MAX) - Int(CAPTURE_POLICY_MIN)) + 1
 
 function capture_setup(camera::Camera,num_dma_buffers::Int=1,flags::dc1394capture_flags_t=CAPTURE_FLAGS_DEFAULT)
-  ccall((:dc1394_capture_setup,libdc1394),
+  @dcassert ccall((:dc1394_capture_setup,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},UInt32,dc1394capture_flags_t),
     camera.handle,num_dma_buffers,flags)
 end
 
 function capture_stop(camera::Camera)
-  ccall((:dc1394_capture_stop,libdc1394),
+  @dcassert ccall((:dc1394_capture_stop,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},),
     camera.handle)
@@ -129,7 +126,7 @@ end
 
 function capture_dequeue(camera::Camera,policy::dc1394capture_policy_t=CAPTURE_POLICY_WAIT)
   frame=Array{Ptr{dc1394video_frame_t},1}(1)
-  ccall((:dc1394_capture_dequeue,libdc1394),
+  c@dcassert call((:dc1394_capture_dequeue,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},dc1394capture_policy_t,Ptr{Ptr{dc1394video_frame_t}}),
     camera.handle,policy,frame)
@@ -138,7 +135,7 @@ end
 
 function capture_enqueue(frame::VideoFrame)
   if frame.handle!=C_NULL
-    ccall((:dc1394_capture_enqueue,libdc1394),
+    @dcassert ccall((:dc1394_capture_enqueue,libdc1394),
       dc1394error_t,
       (Ptr{dc1394camera_info_t},Ptr{dc1394video_frame_t}),
       get_info(frame).camera,frame.handle)

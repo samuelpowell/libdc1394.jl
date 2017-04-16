@@ -1,4 +1,4 @@
-The libdc1394.jl package is licensed under the MIT "Expat" License:
+The DC1394.jl package is licensed under the MIT "Expat" License:
 
 > Copyright (C) 2017 Samuel Powell
 > Copyright (C) 2016 tkato

@@ -1,6 +1,7 @@
-# libDC1394.jl: interface to the libDC1394 library
-# Copyright (c) 2016 tkato
-# Copyright (C) 2017 Samuel Powell
+# DC1394.jl: interface to the libDC1394 library
+# Copyright (C) 2016 tkato, 2017 Samuel Powell
+
+# camera.jl - function mappings for camera.h (partial, split with DC1394.jl)
 
 export
   Camera,
@@ -8,11 +9,6 @@ export
   read_cycle_timer,
   camera_get_node,
   camera_enumerate,
-  reset_camera,
-  camera_set_power,
-  memory_busy,
-  memory_save,
-  memory_load,
   camera_set_broadcast,
   camera_is_broadcast
 
@@ -32,10 +28,13 @@ Returns the list of cameras available on the computer
 """
 function camera_enumerate()
   list=Array{Ptr{dc1394camera_list_t},1}(1)
-  err=ccall((:dc1394_camera_enumerate,libdc1394),
+  @dcassert ccall((:dc1394_camera_enumerate,libdc1394),
     dc1394error_t,
     (Ptr{dc1394_t},Ptr{Ptr{dc1394camera_list_t}}),
     dc1394,list)
+
+  list[1] == C_NULL && error("Attempt to create camera list from null pointer.")
+
   l=unsafe_load(list[1])
   ids=copy(unsafe_wrap(Array,l.ids,l.num));
   ccall((:dc1394_camera_free_list,libdc1394),
@@ -110,7 +109,10 @@ type Camera
   handle::Ptr{dc1394camera_info_t}
 end
 
-convert(::Type{dc1394camera_info_t}, camera::Camera)=unsafe_load(camera.handle)
+function convert(::Type{dc1394camera_info_t}, camera::Camera)
+  camera.handle == C_NULL && error("Attempt to create camera from null pointer.")
+  unsafe_load(camera.handle)
+end
 
 show(io::IO,c::Camera)=show(io,dc1394camera_info_t(c))
 
@@ -154,7 +156,7 @@ function is_same_camera(id1::dc1394camera_id_t,id2::dc1394camera_id_t)
 end
 
 function camera_set_broadcast(camera::Camera,pwr::Bool)
-  ccall((:dc1394_camera_set_broadcast,libdc1394),
+  @dcassert ccall((:dc1394_camera_set_broadcast,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},dc1394bool_t),
     camera.handle,pwr?TRUE:FALSE)
@@ -162,7 +164,7 @@ end
 
 function camera_is_broadcast(camera::Camera)
   pwr=Array{dc1394bool_t,1}(1)
-  ccall((:dc1394_camera_get_broadcast,libdc1394),
+  @dcassert ccall((:dc1394_camera_get_broadcast,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},Ptr{dc1394bool_t}),
     camera.handle,pwr)
@@ -172,29 +174,15 @@ end
 function camera_get_node(camera::Camera)
   node=[UInt32(0)]
   generation=[UInt32(0)]
-  ccall((:dc1394_camera_get_node,libdc1394),
+  @dcassert ccall((:dc1394_camera_get_node,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},Ptr{UInt32},Ptr{UInt32}),
     camera.handle,node,generation)
   Int(node[1]),Int(generation[1])
 end
 
-function camera_reset(camera::Camera)
-  ccall((:dc1394_camera_reset,libdc1394),
-    dc1394error_t,
-    (Ptr{dc1394camera_info_t},),
-    camera.handle)
-end
-
-function camera_set_power(camera::Camera,pwr::dc1394switch_t)
-  ccall((:dc1394_camera_set_power,libdc1394),
-    dc1394error_t,
-    (Ptr{dc1394camera_info_t},dc1394switch_t),
-    camera.handel,pwr)
-end
-
 function reset_bus(camera::Camera)
-  ccall((:dc1394_reset_bus,libdc1394),
+  @dcassert ccall((:dc1394_reset_bus,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},),
     camera.handle)
@@ -203,32 +191,9 @@ end
 function read_cycle_timer(camera::Camera)
   cycle_timer=[UInt32(0)]
   local_time=[UInt64(0)]
-  ccall((:dc1394_read_cycle_timer,libdc1394),
+  @dcassert ccall((:dc1394_read_cycle_timer,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},Ptr{UInt32},Ptr{UInt64}),
     camera.handle,cycle_timer,local_time)
   (Int(cycle_timer[1]),local_time[1])
-end
-
-function memory_busy(camera::Camera)
-  value=[dc1394bool_t(FALSE)]
-  ccall((:dc1394_memory_busy,libdc1394),
-    dc1394error_t,
-    (Ptr{dc1394camera_info_t},Ptr{dc1394bool_t}),
-    camera.handle,value)
-  value[1]==TRUE
-end
-
-function memory_save(camera::Camera,channel::Int)
-  ccall((:dc1394_memory_save,libdc1394),
-    dc1394error_t,
-    (Ptr{dc1394camera_info_t},UInt32),
-    camera.handle,channel)
-end
-
-function memory_load(camera::Camera,channel::Int)
-  ccall((:dc1394_memory_load,libdc1394),
-    dc1394error_t,
-    (Ptr{dc1394camera_info_t},UInt32),
-    camera.handle,channel)
 end
