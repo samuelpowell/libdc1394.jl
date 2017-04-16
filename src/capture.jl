@@ -85,9 +85,9 @@ function get_image(vf::VideoFrame)
   end
 end
 
-convert(::Type{AbstractArray},vf::DC1394.VideoFrame)=get_image(vf)
-convert(::Type{Array},vf::DC1394.VideoFrame)=get_image(vf)
-convert(::Type{Camera},vf::DC1394.VideoFrame)=Camera(get_info(vf).camera)
+convert(::Type{AbstractArray},vf::VideoFrame)=get_image(vf)
+convert(::Type{Array},vf::VideoFrame)=get_image(vf)
+convert(::Type{Camera},vf::VideoFrame)=Camera(get_info(vf).camera)
 show(io::IO,vf::VideoFrame)=show(io,get_info(vf))
 
 @enum(dc1394capture_flags_t,
