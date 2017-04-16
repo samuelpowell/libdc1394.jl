@@ -1,10 +1,10 @@
-## libdc1394.jl
+## DC1394.jl
 
-[![Build Status](https://travis-ci.org/samuelpowell/libdc1394.jl.svg?branch=master)](https://travis-ci.org/samuelpowell/libdc1394.jl)
+[![Build Status](https://travis-ci.org/samuelpowell/DC1394.jl.svg?branch=master)](https://travis-ci.org/samuelpowell/DC1394.jl)
 
-[![Coverage Status](https://coveralls.io/repos/samuelpowell/libdc1394.jl/badge.svg?branch=master&service=github)](https://coveralls.io/github/samuelpowell/libdc1394.jl?branch=master)
+[![Coverage Status](https://coveralls.io/repos/samuelpowell/DC1394.jl/badge.svg?branch=master&service=github)](https://coveralls.io/github/samuelpowell/DC1394.jl?branch=master)
 
-[![codecov.io](http://codecov.io/github/samuelpowell/libdc1394.jl/coverage.svg?branch=master)](http://codecov.io/github/samuelpowell/libdc1394.jl?branch=master)
+[![codecov.io](http://codecov.io/github/samuelpowell/DC1394.jl/coverage.svg?branch=master)](http://codecov.io/github/samuelpowell/DC1394.jl?branch=master)
 
 This package is a low-level Julia wrapper of the [libdc1394](http://damien.douxchamps.net/ieee1394/libdc1394/) library, currently targeting v2.2.4 (the latest version on libdc1394 (v2.2.5) has build errors on macOS which have been fixed in the development version).
 
@@ -18,14 +18,14 @@ This is a fork of the original work by [TakekazuKATO](https://github.com/Takekaz
 
 ## Compatibility
 
-libdc1394.jl has been tested with Julia 0.5 on MacOS (with an Hamamatsu ORCA-03G camera), and should work without modification on Linux. Windows compatability will require the addition of a binary source for the libDC1394 library (PR welcome!).
+DC1394.jl has been tested with Julia 0.5 on MacOS (with an Hamamatsu ORCA-03G camera), and should work without modification on Linux. Windows compatability will require the addition of a binary source for the libDC1394 library (PR welcome!).
 
 ## Installation
 
 Clone and build the package as follows.
 
 ```
-julia> Pkg.clone("git@github.com:samuelpowell/libdc1394.jl.git")
+julia> Pkg.clone("git@github.com:samuelpowell/DC1394.jl.git")
 julia> Pkg.build("libdc1394")
 ```
 
@@ -33,7 +33,7 @@ The package depends upon libSDL and libdc1394 which are downloaded or built from
 
 ## API
 
-libdc1394.jl adheres closely to the libdc1394 API with some exceptions:
+DC1394.jl adheres closely to the libdc1394 API with some exceptions:
 
 + functions are not prefixed by `dc1394`;
 + the module creates a libdc1394 context upon loading which is held internally and freed when the module is unloaded, there is no need therefore to call `dc1394_new()` or `dc1394_free()`;
@@ -44,7 +44,7 @@ The following subsections detail the specifics of the API mappings as detailed o
 
 ### System & Camera
 
-System functions are mostly handled internally through automatic context creation and management, and the `Camera` and `VideoFrame` types detailed above. The implementation is split between `libdc1394.jl` and `camera.jl`.
+System functions are mostly handled internally through automatic context creation and management, and the `Camera` and `VideoFrame` types detailed above. The implementation is split between `DC1394.jl` and `camera.jl`.
 
 ### Triggers
 
