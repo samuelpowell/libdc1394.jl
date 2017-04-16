@@ -1,6 +1,7 @@
 # DC1394.jl: interface to the libDC1394 library
-# Copyright (c) 2016 tkato
-# Copyright (C) 2017 Samuel Powell
+# Copyright (C) 2016 tkato, 2017 Samuel Powell
+
+# video.jl - video function mappings for video.h (complete)
 
 export
   video_get_supported_modes,

@@ -1,3 +1,8 @@
+# DC1394.jl: interface to the libDC1394 library
+# Copyright (C) 2016 tkato, 2017 Samuel Powell
+
+# control_feature.jl - feature function mappings for control.h (WIP)
+
 export
 #get and set Feature generic way
 get_value,set_value,is_present,is_readable,get_boundaries,is_switchable,get_power,set_power,get_modes,get_mode,set_mode,has_absolute_control,get_absolute_boundaries,get_absolute_value,set_absolute_value,get_absolute_control,set_absolute_control,

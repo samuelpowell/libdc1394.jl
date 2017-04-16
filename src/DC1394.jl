@@ -1,6 +1,5 @@
 # DC1394.jl: interface to the libDC1394 library
-# Copyright (c) 2016 tkato
-# Copyright (C) 2017 Samuel Powell
+# Copyright (C) 2016 tkato, 2017 Samuel Powell
 
 module DC1394
 
@@ -42,8 +41,7 @@ end
 include("types.jl")
 include("errors.jl")
 include("camera.jl")
-include("trigger.jl")
-include("feature.jl")
+include("control.jl")
 include("video.jl")
 include("format7.jl")
 include("capture.jl")

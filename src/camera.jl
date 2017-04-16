@@ -1,6 +1,7 @@
 # DC1394.jl: interface to the libDC1394 library
-# Copyright (c) 2016 tkato
-# Copyright (C) 2017 Samuel Powell
+# Copyright (C) 2016 tkato, 2017 Samuel Powell
+
+# camera.jl - function mappings for camera.h (partial, split with DC1394.jl)
 
 export
   Camera,
@@ -8,11 +9,6 @@ export
   read_cycle_timer,
   camera_get_node,
   camera_enumerate,
-  reset_camera,
-  camera_set_power,
-  memory_busy,
-  memory_save,
-  memory_load,
   camera_set_broadcast,
   camera_is_broadcast
 
@@ -185,20 +181,6 @@ function camera_get_node(camera::Camera)
   Int(node[1]),Int(generation[1])
 end
 
-function camera_reset(camera::Camera)
-  @dcassert ccall((:dc1394_camera_reset,libdc1394),
-    dc1394error_t,
-    (Ptr{dc1394camera_info_t},),
-    camera.handle)
-end
-
-function camera_set_power(camera::Camera,pwr::dc1394switch_t)
-  @dcassert ccall((:dc1394_camera_set_power,libdc1394),
-    dc1394error_t,
-    (Ptr{dc1394camera_info_t},dc1394switch_t),
-    camera.handel,pwr)
-end
-
 function reset_bus(camera::Camera)
   @dcassert ccall((:dc1394_reset_bus,libdc1394),
     dc1394error_t,
@@ -214,27 +196,4 @@ function read_cycle_timer(camera::Camera)
     (Ptr{dc1394camera_info_t},Ptr{UInt32},Ptr{UInt64}),
     camera.handle,cycle_timer,local_time)
   (Int(cycle_timer[1]),local_time[1])
-end
-
-function memory_busy(camera::Camera)
-  value=[dc1394bool_t(FALSE)]
-  @dcassert ccall((:dc1394_memory_busy,libdc1394),
-    dc1394error_t,
-    (Ptr{dc1394camera_info_t},Ptr{dc1394bool_t}),
-    camera.handle,value)
-  value[1]==TRUE
-end
-
-function memory_save(camera::Camera,channel::Int)
-  @dcassert ccall((:dc1394_memory_save,libdc1394),
-    dc1394error_t,
-    (Ptr{dc1394camera_info_t},UInt32),
-    camera.handle,channel)
-end
-
-function memory_load(camera::Camera,channel::Int)
-  @dcassert ccall((:dc1394_memory_load,libdc1394),
-    dc1394error_t,
-    (Ptr{dc1394camera_info_t},UInt32),
-    camera.handle,channel)
 end
