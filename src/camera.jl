@@ -36,6 +36,9 @@ function camera_enumerate()
     dc1394error_t,
     (Ptr{dc1394_t},Ptr{Ptr{dc1394camera_list_t}}),
     dc1394,list)
+
+  list[1] == C_NULL && error("Attempt to create camera list from null pointer.")
+
   l=unsafe_load(list[1])
   ids=copy(unsafe_wrap(Array,l.ids,l.num));
   ccall((:dc1394_camera_free_list,libdc1394),
@@ -110,7 +113,10 @@ type Camera
   handle::Ptr{dc1394camera_info_t}
 end
 
-convert(::Type{dc1394camera_info_t}, camera::Camera)=unsafe_load(camera.handle)
+function convert(::Type{dc1394camera_info_t}, camera::Camera)
+  camera.handle == C_NULL && error("Attempt to create camera from null pointer.")
+  unsafe_load(camera.handle)
+end
 
 show(io::IO,c::Camera)=show(io,dc1394camera_info_t(c))
 
