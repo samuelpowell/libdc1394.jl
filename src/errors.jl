@@ -64,14 +64,14 @@ const LOG_MAX = LOG_DEBUG
 const LOG_NUM = (Int(LOG_MAX) - Int(LOG_MIN)) + 1
 
 function register_handler(_type::dc1394log_t,log_handler::Ptr{Void},user::Ptr{Void})
-  ccall((:dc1394_log_register_handler,libdc1394),
+  @dcassert ccall((:dc1394_log_register_handler,libdc1394),
     dc1394error_t,
     (dc1394log_t,Ptr{Void},Ptr{Void}),
     _type,log_handler,user)
 end
 
 function set_default_handler(_type::dc1394log_t)
-  ccall((:dc1394_log_set_default_handler,libdc1394),
+  @dcassert ccall((:dc1394_log_set_default_handler,libdc1394),
     dc1394error_t,
     (dc1394log_t,),
     _type)

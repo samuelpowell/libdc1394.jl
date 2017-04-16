@@ -26,6 +26,10 @@ function dc1394_free(context::Array{dc1394_t,1})
   ccall((:dc1394_free,libdc1394),Void,(Ptr{dc1394_t},),context)
 end
 
+macro dcassert(ex)
+    return :( err = $ex; err == SUCCESS ? nothing : error(string(err)))
+end
+
 include("types.jl")
 include("errors.jl")
 include("camera.jl")

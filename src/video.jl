@@ -82,9 +82,9 @@ const VIDEO_MODE_FORMAT6_MAX = VIDEO_MODE_EXIF
 const VIDEO_MODE_FORMAT6_NUM = (Int(VIDEO_MODE_FORMAT6_MAX) - Int(VIDEO_MODE_FORMAT6_MIN)) + 1
 
 immutable dc1394video_modes_t
-    num::UInt32
-    modes::NTuple{32,dc1394video_mode_t}
-    dc1394video_modes_t()=new(UInt32(0),ntuple(x->VIDEO_MODE_MIN,32))
+  num::UInt32
+  modes::NTuple{32,dc1394video_mode_t}
+  dc1394video_modes_t()=new(UInt32(0),ntuple(x->VIDEO_MODE_MIN,32))
 end
 
 show(io::IO,vms::dc1394video_modes_t)=0<vms.num<32? show(io,vms.modes[1:vms.num]) :()
@@ -129,7 +129,7 @@ show(io::IO,fm::dc1394framerates_t)=0<fm.num<8? show(io,fm.framerates[1:fm.num])
 
 function convert(::Type{Float32},framerate_enum::dc1394framerate_t)
   framerate=[Cfloat(0)]
-  ccall((:dc1394_framerate_as_float,libdc1394),
+  @dcassert ccall((:dc1394_framerate_as_float,libdc1394),
     dc1394error_t,
     (dc1394framerate_t,Ptr{Cfloat}),
     framerate_enum,framerate)
@@ -149,7 +149,7 @@ const OPERATION_MODE_NUM = (Int(OPERATION_MODE_MAX) - Int(OPERATION_MODE_MIN)) +
 
 function video_get_supported_modes(camera::Camera)
   modes=Array{dc1394video_modes_t,1}(1)
-  ccall((:dc1394_video_get_supported_modes,libdc1394),
+  @dcassert ccall((:dc1394_video_get_supported_modes,libdc1394),
         dc1394error_t,
         (Ptr{dc1394camera_info_t},Ptr{dc1394video_modes_t}),
         camera.handle,modes)
@@ -158,7 +158,7 @@ end
 
 function video_get_mode(camera::Camera)
   video_mode=Array{dc1394video_mode_t,1}(1)
-  ccall((:dc1394_video_get_mode,libdc1394),
+  @dcassert ccall((:dc1394_video_get_mode,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},Ptr{dc1394video_mode_t}),
     camera.handle,video_mode)
@@ -166,7 +166,7 @@ function video_get_mode(camera::Camera)
 end
 
 function video_set_mode(camera::Camera,video_mode::dc1394video_mode_t)
-  ccall((:dc1394_video_set_mode,libdc1394),
+  @dcassert ccall((:dc1394_video_set_mode,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},dc1394video_mode_t),
     camera.handle,video_mode)
@@ -174,7 +174,7 @@ end
 
 function video_get_supported_framerates(camera::Camera,video_mode::dc1394video_mode_t)
   framerates=Array{dc1394framerates_t,1}(1)
-  ccall((:dc1394_video_get_supported_framerates,libdc1394),
+  @dcassert ccall((:dc1394_video_get_supported_framerates,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},dc1394video_mode_t,Ptr{dc1394framerates_t}),
     camera.handle,video_mode,framerates)
@@ -183,7 +183,7 @@ end
 
 function video_get_framerate(camera::Camera)
   framerate=Array{dc1394framerate_t,1}(1)
-  ccall((:dc1394_video_get_framerate,libdc1394),
+  @dcassert ccall((:dc1394_video_get_framerate,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},Ptr{dc1394framerate_t}),
     camera.handle,framerate)
@@ -191,7 +191,7 @@ function video_get_framerate(camera::Camera)
 end
 
 function video_set_framerate(camera::Camera,framerate::dc1394framerate_t)
-  ccall((:dc1394_video_set_framerate,libdc1394),
+  @dcassert ccall((:dc1394_video_set_framerate,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},dc1394framerate_t),
     camera.handle,framerate)
@@ -199,7 +199,7 @@ end
 
 function video_get_operation_mode(camera::Camera)
   mode=Array{dc1394operation_mode_t,1}(1)
-  ccall((:dc1394_video_get_operation_mode,libdc1394),
+  @dcassert ccall((:dc1394_video_get_operation_mode,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},Ptr{dc1394operation_mode_t}),
     camera.handle,mode)
@@ -207,7 +207,7 @@ function video_get_operation_mode(camera::Camera)
 end
 
 function video_set_operation_mode(camera::Camera,mode::dc1394operation_mode_t)
-  ccall((:dc1394_video_set_operation_mode,libdc1394),
+  @dcassert ccall((:dc1394_video_set_operation_mode,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},dc1394operation_mode_t),
     camera.handle,mode)
@@ -215,7 +215,7 @@ end
 
 function video_get_iso_speed(camera::Camera)
   speed=Array{dc1394speed_t,1}(1)
-  ccall((:dc1394_video_get_iso_speed,libdc1394),
+  @dcassert ccall((:dc1394_video_get_iso_speed,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},Ptr{dc1394speed_t}),
     camera.handle,speed)
@@ -223,7 +223,7 @@ function video_get_iso_speed(camera::Camera)
 end
 
 function video_set_iso_speed(camera::Camera,speed::dc1394speed_t)
-  ccall((:dc1394_video_set_iso_speed,libdc1394),
+  @dcassert ccall((:dc1394_video_set_iso_speed,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},dc1394speed_t),
     camera.handle,speed)
@@ -231,7 +231,7 @@ end
 
 function video_get_iso_channel(camera::Camera)
   channel=[UInt32(0)]
-  ccall((:dc1394_video_get_iso_channel,libdc1394),
+  @dcassert ccall((:dc1394_video_get_iso_channel,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},Ptr{UInt32}),
     camera.handle,channel)
@@ -239,7 +239,7 @@ function video_get_iso_channel(camera::Camera)
 end
 
 function video_set_iso_channel(camera::Camera,channel::Int)
-  ccall((:dc1394_video_set_iso_channel,libdc1394),
+  @dcassert ccall((:dc1394_video_set_iso_channel,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},UInt32),
     camera.handle,channel)
@@ -247,7 +247,7 @@ end
 
 function video_get_data_depth(camera::Camera)
   depth=[UInt32(0)]
-  ccall((:dc1394_video_get_data_depth,libdc1394),
+  @dcassert ccall((:dc1394_video_get_data_depth,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},Ptr{UInt32}),
     camera.handle,depth)
@@ -255,7 +255,7 @@ function video_get_data_depth(camera::Camera)
 end
 
 function video_set_transmission(camera::Camera,pwr::dc1394switch_t)
-  ccall((:dc1394_video_set_transmission,libdc1394),
+  @dcassert ccall((:dc1394_video_set_transmission,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},dc1394switch_t),
     camera.handle,pwr)
@@ -263,7 +263,7 @@ end
 
 function video_get_transmission(camera::Camera)
   pwr=[dc1394switch_t(OFF)]
-  ccall((:dc1394_video_get_transmission,libdc1394),
+  @dcassert ccall((:dc1394_video_get_transmission,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},Ptr{dc1394switch_t}),
     camera.handle,pwr)
@@ -271,7 +271,7 @@ function video_get_transmission(camera::Camera)
 end
 
 function video_set_one_shot(camera::Camera,pwr::dc1394switch_t)
-  ccall((:dc1394_video_set_one_shot,libdc1394),
+  @dcassert ccall((:dc1394_video_set_one_shot,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},dc1394switch_t),
     camera.handle,pwr)
@@ -279,7 +279,7 @@ end
 
 function video_get_one_shot(camera::Camera)
   is_on=[dc1394bool_t(FALSE)]
-  ccall((:dc1394_video_get_one_shot,libdc1394),
+  @dcassert ccall((:dc1394_video_get_one_shot,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},Ptr{dc1394bool_t}),
     camera.handle,is_on)
@@ -287,7 +287,7 @@ function video_get_one_shot(camera::Camera)
 end
 
 function video_set_multi_shot(camera::Camera,numFrames::Int,pwr::dc1394switch_t)
-  ccall((:dc1394_video_set_multi_shot,libdc1394),
+  @dcassert ccall((:dc1394_video_set_multi_shot,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},UInt32,dc1394switch_t),
     camera.handle,numFrames,pwr)
@@ -296,7 +296,7 @@ end
 function video_get_multi_shot(camera::Camera)
   is_on=[dc1394bool_t(OFF)]
   numFrames=[UInt32(0)]
-  ccall((:dc1394_video_get_multi_shot,libdc1394),
+  @dcassert ccall((:dc1394_video_get_multi_shot,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},Ptr{dc1394bool_t},Ptr{UInt32}),
     camera.handle,is_on,numFrames)
@@ -305,7 +305,7 @@ end
 
 function video_get_bandwidth_usage(camera::Camera)
   bandwidth=[UInt32(0)]
-  ccall((:dc1394_video_get_bandwidth_usage,libdc1394),
+  @dcassert ccall((:dc1394_video_get_bandwidth_usage,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},Ptr{UInt32}),
     camera.handle,bandwidth)

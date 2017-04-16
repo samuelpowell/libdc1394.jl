@@ -34,7 +34,7 @@ const STEREO_METHOD_MAX = STEREO_METHOD_FIELD
 const STEREO_METHOD_NUM = (Int(STEREO_METHOD_MAX) - Int(STEREO_METHOD_MIN)) + 1
 
 function convert_frames(_in::VideoFrame,out::VideoFrame)
-  ccall((:dc1394_convert_frames,libdc1394),
+  @dcassert ccall((:dc1394_convert_frames,libdc1394),
     dc1394error_t,
     (Ptr{dc1394video_frame_t},Ptr{dc1394video_frame_t}),
     _in.handle,out.handle)
@@ -45,9 +45,9 @@ function debayer_frames(_in::VideoFrame,out::VideoFrame,method::dc1394bayer_meth
   if ptr==C_NULL
     ptr=Ptr{dc1394video_frame_t}(Libc.calloc(1,sizeof(dc1394video_frame_t)))
   end
-  err=ccall((:dc1394_debayer_frames,libdc1394),
-    dc1394error_t,(Ptr{dc1394video_frame_t},
-    Ptr{dc1394video_frame_t},dc1394bayer_method_t),
+  @dcassert ccall((:dc1394_debayer_frames,libdc1394),
+    dc1394error_t,
+    (Ptr{dc1394video_frame_t},Ptr{dc1394video_frame_t},dc1394bayer_method_t),
     _in.handle,ptr,method)
   VideoFrame(ptr)
 end
@@ -59,7 +59,7 @@ function deinterlace_stereo_frames(_in::VideoFrame,out::VideoFrame,method::dc139
   if ptr==C_NULL
     ptr=Ptr{dc1394video_frame_t}(Libc.calloc(1,sizeof(dc1394video_frame_t)))
   end
-  ccall((:dc1394_deinterlace_stereo_frames,libdc1394),
+  @dcassert ccall((:dc1394_deinterlace_stereo_frames,libdc1394),
     dc1394error_t,
     (Ptr{dc1394video_frame_t},Ptr{dc1394video_frame_t},dc1394stereo_method_t),
     _in,out,method)

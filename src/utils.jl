@@ -16,7 +16,7 @@ export
   checksum_crc16
 
 function pio_set(camera::Camera,value::Int)
-  ccall((:dc1394_pio_set,libdc1394),
+  @dcassert ccall((:dc1394_pio_set,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},UInt32),
     camera.handle,value)
@@ -24,7 +24,7 @@ end
 
 function pio_get(camera::Camera)
   value=[UInt32(0)]
-  ccall((:dc1394_pio_get,libdc1394),
+  @dcassert ccall((:dc1394_pio_get,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},Ptr{UInt32}),
     camera.handle,value)
@@ -33,7 +33,7 @@ end
 
 function get_registers(camera::Camera,offset::Integer,num_regs::Integer)
   value=Array{UInt32,1}(num_regs)
-  ccall((:dc1394_get_registers,libdc1394),
+  @dcassert ccall((:dc1394_get_registers,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},UInt64,Ptr{UInt32},UInt32),
     camera.handle,offset,value,num_regs)
@@ -42,7 +42,7 @@ end
 
 function get_register(camera::Camera,offset::Integer)
   value=[UInt32(0)]
-  ccall((:dc1394_get_register,libdc1394),
+  @dcassert ccall((:dc1394_get_register,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},UInt64,Ptr{UInt32}),
     camera.handle,offset,value)
@@ -51,14 +51,14 @@ end
 
 function set_registers(camera::Camera,offset::Integer,value::Array{UInt32,1})
   num_regs=UInt32(size(value,1))
-  ccall((:dc1394_set_registers,libdc1394),
+  @dcassert ccall((:dc1394_set_registers,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},UInt64,Ptr{UInt32},UInt32),
     camera.handle,offset,value,num_regs)
 end
 
 function set_register(camera::Camera,offset::Integer,value::Integer)
-  ccall((:dc1394_set_register,libdc1394),
+  @dcassert ccall((:dc1394_set_register,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},UInt64,UInt32),
     camera.handle,offset,value)
@@ -66,7 +66,7 @@ end
 
 function get_control_registers(camera::Camera,offset::Integer,num_regs::Integer)
   value=Array{UInt32,1}(num_regs)
-  ccall((:dc1394_get_control_registers,libdc1394),
+  @dcassert ccall((:dc1394_get_control_registers,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},UInt64,Ptr{UInt32},UInt32),
     camera.handle,offset,value,num_regs)
@@ -75,7 +75,7 @@ end
 
 function get_control_register(camera::Camera,offset::Integer)
   value=[UInt32(0)]
-  ccall((:dc1394_get_control_register,libdc1394),
+  @dcassert ccall((:dc1394_get_control_register,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},UInt64,Ptr{UInt32}),
     camera.handle,offset,value)
@@ -84,14 +84,14 @@ end
 
 function set_control_registers(camera::Camera,offset::Integer,value::Array{UInt32,1})
   num_regs=UInt32(size(value,1))
-  ccall((:dc1394_set_control_registers,libdc1394),
+  @dcassert ccall((:dc1394_set_control_registers,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},UInt64,Ptr{UInt32},UInt32),
     camera.handle,offset,value,num_regs)
 end
 
 function set_control_register(camera::Camera,offset::Integer,value::Integer)
-  ccall((:dc1394_set_control_register,libdc1394),
+  @dcassert ccall((:dc1394_set_control_register,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},UInt64,UInt32),
     camera.handle,offset,value)
@@ -99,7 +99,7 @@ end
 
 function get_adv_control_registers(camera::Camera,offset::Integer,num_regs::Integer)
   value=Array{UInt32,1}(num_regs)
-  ccall((:dc1394_get_adv_control_registers,libdc1394),
+  @dcassert ccall((:dc1394_get_adv_control_registers,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},UInt64,Ptr{UInt32},UInt32),
     camera.handle,offset,value,num_regs)
@@ -108,7 +108,7 @@ end
 
 function get_adv_control_register(camera::Camera,offset::Integer)
   value=[UInt32(0)]
-  ccall((:dc1394_get_adv_control_register,libdc1394),
+  @dcassert ccall((:dc1394_get_adv_control_register,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},UInt64,Ptr{UInt32}),
     camera.value,offset,value)
@@ -117,14 +117,14 @@ end
 
 function set_adv_control_registers(camera::Camera,offset::Integer,value::Array{UInt32,1})
   num_regs=UInt32(size(value,1))
-  ccall((:dc1394_set_adv_control_registers,libdc1394),
+  @dcassert ccall((:dc1394_set_adv_control_registers,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},UInt64,Ptr{UInt32},UInt32),
     camera.handle,offset,value,num_regs)
 end
 
 function set_adv_control_register(camera::Camera,offset::Integer,value::Integer)
-  ccall((:dc1394_set_adv_control_register,libdc1394),
+  @dcassert ccall((:dc1394_set_adv_control_register,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},UInt64,UInt32),
     camera.handle,offset,value)
@@ -132,7 +132,7 @@ end
 
 function get_format7_register(camera::Camera,mode::Integer,offset::Integer)
   value=[UInt32(0)]
-  ccall((:dc1394_get_format7_register,libdc1394),
+  @dcassert ccall((:dc1394_get_format7_register,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},UInt32,UInt64,Ptr{UInt32}),
     camera.handle,mode,offset,value)
@@ -140,7 +140,7 @@ function get_format7_register(camera::Camera,mode::Integer,offset::Integer)
 end
 
 function set_format7_register(camera::Camera,mode::Integer,offset::Integer,value::Integer)
-  ccall((:dc1394_set_format7_register,libdc1394),
+  @dcassert ccall((:dc1394_set_format7_register,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},UInt32,UInt64,UInt32),
     camera.handle,mode,offset,value)
@@ -148,7 +148,7 @@ end
 
 function get_absolute_register(camera::Camera,feature::Integer,offset::Integer)
   value=[UInt32(0)]
-  ccall((:dc1394_get_absolute_register,libdc1394),
+  @dcassert ccall((:dc1394_get_absolute_register,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},UInt32,UInt64,Ptr{UInt32}),
     camera.handle,feature,offset,value)
@@ -156,7 +156,7 @@ function get_absolute_register(camera::Camera,feature::Integer,offset::Integer)
 end
 
 function set_absolute_register(camera::Camera,feature::Integer,offset::Integer,value::Integer)
-  ccall((:dc1394_set_absolute_register,libdc1394),
+  @dcassert ccall((:dc1394_set_absolute_register,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},UInt32,UInt64,UInt32),
     camera.handle,feature,offset,value)
@@ -164,7 +164,7 @@ end
 
 function get_PIO_register(camera::Camera,offset::Integer)
   value=[UInt32(0)]
-  ccall((:dc1394_get_PIO_register,libdc1394),
+  @dcassert ccall((:dc1394_get_PIO_register,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},UInt64,Ptr{UInt32}),
     camera.handle,offset,value)
@@ -172,7 +172,7 @@ function get_PIO_register(camera::Camera,offset::Integer)
 end
 
 function set_PIO_register(camera::Camera,offset::Integer,value::Integer)
-  ccall((:dc1394_set_PIO_register,libdc1394),
+  @dcassert ccall((:dc1394_set_PIO_register,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},UInt64,UInt32),
     camera.handle,offset,value)
@@ -180,7 +180,7 @@ end
 
 function get_SIO_register(camera::Camera,offset::Integer)
   value=[UInt32(0)]
-  ccall((:dc1394_get_SIO_register,libdc1394),
+  @dcassert ccall((:dc1394_get_SIO_register,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},UInt64,Ptr{UInt32}),
     camera.handle,offset,value)
@@ -188,7 +188,7 @@ function get_SIO_register(camera::Camera,offset::Integer)
 end
 
 function set_SIO_register(camera::Camera,offset::Integer,value::Integer)
-  ccall((:dc1394_set_SIO_register,libdc1394),
+  @dcassert ccall((:dc1394_set_SIO_register,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},UInt64,UInt32),
     camera.handle,offset,value)
@@ -196,7 +196,7 @@ end
 
 function get_strobe_register(camera::Camera,offset::UInt64)
   value=[UInt32(0)]
-  ccall((:dc1394_get_strobe_register,libdc1394),
+  @dcassert ccall((:dc1394_get_strobe_register,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},UInt64,Ptr{UInt32}),
     camera.handle,offset,value)
@@ -204,7 +204,7 @@ function get_strobe_register(camera::Camera,offset::UInt64)
 end
 
 function set_strobe_register(camera::Camera,offset::UInt64,value::Int)
-  ccall((:dc1394_set_strobe_register,libdc1394),
+  @dcassert ccall((:dc1394_set_strobe_register,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},UInt64,UInt32),
     camera.handle,offset,value)
@@ -213,7 +213,7 @@ end
 function get_image_size_from_video_mode(camera::Camera,video_mode::dc1394video_mode_t)
   width=Array{UInt32,1}(1)
   height=Array{UInt32,1}(1)
-  ccall((:dc1394_get_image_size_from_video_mode_from_video_mode,libdc1394),
+  @dcassert ccall((:dc1394_get_image_size_from_video_mode_from_video_mode,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},dc1394video_mode_t,Ptr{UInt32},Ptr{UInt32}),
     camera.handle,video_mode,width,height)
@@ -225,7 +225,7 @@ get_image_size_from_video_mode(camera::Camera)=get_image_size_from_video_mode(ca
 
 function get_color_coding_data_depth(color_coding::dc1394color_coding_t)
   bits=[UInt32(0)]
-  ccall((:dc1394_get_color_coding_from_video_mode_data_depth,libdc1394),
+  @dcassert ccall((:dc1394_get_color_coding_from_video_mode_data_depth,libdc1394),
     dc1394error_t,
     (dc1394color_coding_t,Ptr{UInt32}),
     color_coding,bits)
@@ -234,7 +234,7 @@ end
 
 function get_color_coding_bit_size(color_coding::dc1394color_coding_t)
   bits=[UInt32(0)]
-  ccall((:dc1394_get_color_coding_from_video_mode_bit_size,libdc1394),
+  @dcassert ccall((:dc1394_get_color_coding_from_video_mode_bit_size,libdc1394),
     dc1394error_t,
     (dc1394color_coding_t,Ptr{UInt32}),
     color_coding,bits)
@@ -243,7 +243,7 @@ end
 
 function get_color_coding_from_video_mode(camera::Camera,video_mode::dc1394video_mode_t)
   color_coding=Array{dc1394color_coding_t,1}(1)
-  ccall((:dc1394_get_color_coding_from_video_mode_from_video_mode,libdc1394),
+  @dcassert ccall((:dc1394_get_color_coding_from_video_mode_from_video_mode,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},dc1394video_mode_t,Ptr{dc1394color_coding_t}),
     camera.handle,video_mode,color_coding)
@@ -254,7 +254,7 @@ get_color_coding_from_video_mode(camera::Camera)=get_color_coding_from_video_mod
 
 function is_color(color_mode::dc1394color_coding_t)
   is_color=[dc1394bool_t(FALSE)]
-  ccall((:dc1394_is_color,libdc1394),
+  @dcassert ccall((:dc1394_is_color,libdc1394),
     dc1394error_t,
     (dc1394color_coding_t,Ptr{dc1394bool_t}),
     color_mode,is_color)

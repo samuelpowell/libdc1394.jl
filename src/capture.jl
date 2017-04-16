@@ -107,14 +107,14 @@ const CAPTURE_POLICY_MAX = CAPTURE_POLICY_POLL
 const CAPTURE_POLICY_NUM = (Int(CAPTURE_POLICY_MAX) - Int(CAPTURE_POLICY_MIN)) + 1
 
 function capture_setup(camera::Camera,num_dma_buffers::Int=1,flags::dc1394capture_flags_t=CAPTURE_FLAGS_DEFAULT)
-  ccall((:dc1394_capture_setup,libdc1394),
+  @dcassert ccall((:dc1394_capture_setup,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},UInt32,dc1394capture_flags_t),
     camera.handle,num_dma_buffers,flags)
 end
 
 function capture_stop(camera::Camera)
-  ccall((:dc1394_capture_stop,libdc1394),
+  @dcassert ccall((:dc1394_capture_stop,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},),
     camera.handle)
@@ -129,7 +129,7 @@ end
 
 function capture_dequeue(camera::Camera,policy::dc1394capture_policy_t=CAPTURE_POLICY_WAIT)
   frame=Array{Ptr{dc1394video_frame_t},1}(1)
-  ccall((:dc1394_capture_dequeue,libdc1394),
+  c@dcassert call((:dc1394_capture_dequeue,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},dc1394capture_policy_t,Ptr{Ptr{dc1394video_frame_t}}),
     camera.handle,policy,frame)
@@ -138,7 +138,7 @@ end
 
 function capture_enqueue(frame::VideoFrame)
   if frame.handle!=C_NULL
-    ccall((:dc1394_capture_enqueue,libdc1394),
+    @dcassert ccall((:dc1394_capture_enqueue,libdc1394),
       dc1394error_t,
       (Ptr{dc1394camera_info_t},Ptr{dc1394video_frame_t}),
       get_info(frame).camera,frame.handle)
