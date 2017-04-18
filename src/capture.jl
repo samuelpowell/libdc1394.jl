@@ -68,7 +68,7 @@ immutable VideoFrame
 end
 
 function get_info(vf::VideoFrame)
-  vf.hanlde == C_NULL ? dc1394video_frame_t() : unsafe_load(vf.handle)
+  vf.handle == C_NULL ? dc1394video_frame_t() : unsafe_load(vf.handle)
 end
 
 function get_image(vf::VideoFrame)
