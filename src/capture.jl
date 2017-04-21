@@ -68,7 +68,7 @@ immutable VideoFrame
 end
 
 function get_info(vf::VideoFrame)
-  vf.hanlde == C_NULL ? dc1394video_frame_t() : unsafe_load(vf.handle)
+  vf.handle == C_NULL ? dc1394video_frame_t() : unsafe_load(vf.handle)
 end
 
 function get_image(vf::VideoFrame)
@@ -126,7 +126,7 @@ end
 
 function capture_dequeue(camera::Camera,policy::dc1394capture_policy_t=CAPTURE_POLICY_WAIT)
   frame=Array{Ptr{dc1394video_frame_t},1}(1)
-  c@dcassert call((:dc1394_capture_dequeue,libdc1394),
+  @dcassert ccall((:dc1394_capture_dequeue,libdc1394),
     dc1394error_t,
     (Ptr{dc1394camera_info_t},dc1394capture_policy_t,Ptr{Ptr{dc1394video_frame_t}}),
     camera.handle,policy,frame)
