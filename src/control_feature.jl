@@ -277,7 +277,7 @@ end
 
 function is_switchable(camera::Camera,feature::dc1394feature_t)
     value=[dc1394bool_t(FALSE)]
-    ccall((:dc1394_feature_is_switchable,libdc1394),dc1394error_t,(Ptr{dc1394camera_info_t},dc1394feature_t,Ptr{dc1394bool_t}),camera.handel,feature,value)
+    ccall((:dc1394_feature_is_switchable,libdc1394),dc1394error_t,(Ptr{dc1394camera_info_t},dc1394feature_t,Ptr{dc1394bool_t}),camera.handle,feature,value)
     value[1]==TRUE
 end
 
